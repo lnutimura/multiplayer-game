@@ -9,7 +9,7 @@ import javax.imageio.*;
 class Game extends JFrame{
     static Vector<Imagens> vetImgs = new Vector<Imagens>();
     final int PASSO = 3; /*em pixels*/
-    final int PASSO_FREQ = 30; /*em milissegundos*/
+    final int PASSO_FREQ = 10; /*em milissegundos*/
     final int SPAWN_TIME = 2000; /*em milissegundos*/
     final int CIRC = 0;
     final int TRI = 1;
