@@ -9,7 +9,7 @@ import javax.imageio.*;
 class Game extends JFrame{
     static Vector<Imagens> vetImgs = new Vector<Imagens>();
     final int PASSO = 3; /*em pixels*/
-    final int PASSO_FREQ = 10; /*em milissegundos*/
+    final int PASSO_FREQ = 30; /*em milissegundos*/
     final int SPAWN_TIME = 2000; /*em milissegundos*/
     final int CIRC = 0;
     final int TRI = 1;
@@ -29,6 +29,7 @@ class Game extends JFrame{
     Image jogador[][] = new Image[3][3];
     Inimigo zonaDeAcerto = null;
     Cena cn = new Cena();
+    Object sincronia = new Object();
 
     class Imagens {
         public Image grafico;
@@ -58,7 +59,7 @@ class Game extends JFrame{
                 jogador[DIR][QUAD] = ImageIO.read(new File("bQuad.png"));
             }
             catch (IOException e){
-                System.out.println("Não foi possivel carregar alguma das imagens.");
+                System.out.println("NÃ£o foi possivel carregar alguma das imagens.");
             };
             formaAtual[ESQ] = TRI;
             formaAtual[CEN] = CIRC;
@@ -71,8 +72,10 @@ class Game extends JFrame{
 
         public void paint(Graphics g){
             super.paint(g);
-            for (Imagens m : vetImgs){
-                g.drawImage(m.grafico,m.posX,m.posY,m.tamX,m.tamY,this);
+            synchronized (sincronia) {
+                for (Imagens m : vetImgs){
+                    g.drawImage(m.grafico,m.posX,m.posY,m.tamX,m.tamY,this);
+                }
             }
         }
 
@@ -115,13 +118,15 @@ class Game extends JFrame{
                 }
             }
             catch (IOException e){
-                System.out.println("Não foi possivel carregar alguma das imagens.");
+                System.out.println("NÃ£o foi possivel carregar alguma das imagens.");
             };
+            synchronized (sincronia) {
             meuIndice = vetImgs.size();
-            vetImgs.add(new Imagens(inimigo[ESQ],J_XE,iPosY,J_TAM_XY,J_TAM_XY));
-            vetImgs.add(new Imagens(inimigo[CEN],J_XC,iPosY,J_TAM_XY,J_TAM_XY));
-            vetImgs.add(new Imagens(inimigo[DIR],J_XD,iPosY,J_TAM_XY,J_TAM_XY));
-            //cn.repaint();
+                vetImgs.add(new Imagens(inimigo[ESQ],J_XE,iPosY,J_TAM_XY,J_TAM_XY));
+                vetImgs.add(new Imagens(inimigo[CEN],J_XC,iPosY,J_TAM_XY,J_TAM_XY));
+                vetImgs.add(new Imagens(inimigo[DIR],J_XD,iPosY,J_TAM_XY,J_TAM_XY));
+                //cn.repaint();
+            }
             new Thread(this).start();
         }
 
@@ -135,7 +140,7 @@ class Game extends JFrame{
                 vetImgs.set(meuIndice+2,new Imagens(inimigo[DIR],J_XD,iPosY,J_TAM_XY,J_TAM_XY));
                 if (iPosY > (J_Y - J_TAM_XY/2) && iPosY < (J_Y + J_TAM_XY/2)){ /**INTERVALO DA ZONA DE ACERTO**/
                     zonaDeAcerto = this;
-                    System.out.println("ESTÁ NA ZONA DE ACERTO!");
+                    System.out.println("ESTÃ NA ZONA DE ACERTO!");
                 }
                 else if(!saiu && iPosY >= (J_Y + J_TAM_XY/2)){
                     saiu = true;
