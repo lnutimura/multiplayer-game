@@ -1,0 +1,11 @@
+# TO DO
+List of tasks and ideas for implementation
+
+**Tasks**
+- [ ] Enemy generation algorithm
+- [ ] Client/server distinction
+
+**Ideas**
+- Player inputs name
+- Right or left handed (plays with AWSD or arrow keys)
+- Best scores in database
