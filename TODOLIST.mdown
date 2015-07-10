@@ -3,9 +3,11 @@ List of tasks and ideas for implementation
 
 **Tasks**
 - [ ] Enemy generation algorithm
-- [ ] Client/server distinction
+- [ ] Client 1/Client 2/Server distinction
+- [ ] Player 2 mechanic [guitar hero]
+- [ ] Score
 
 **Ideas**
-- Player inputs name
+- Players input name
 - Right or left handed (plays with AWSD or arrow keys)
 - Best scores in database
