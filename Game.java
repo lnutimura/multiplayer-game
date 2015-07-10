@@ -59,7 +59,7 @@ class Game extends JFrame{
                 jogador[DIR][QUAD] = ImageIO.read(new File("bQuad.png"));
             }
             catch (IOException e){
-                System.out.println("Não foi possivel carregar alguma das imagens.");
+                System.out.println("NÃ£o foi possivel carregar alguma das imagens.");
             };
             formaAtual[ESQ] = TRI;
             formaAtual[CEN] = CIRC;
@@ -118,7 +118,7 @@ class Game extends JFrame{
                 }
             }
             catch (IOException e){
-                System.out.println("Não foi possivel carregar alguma das imagens.");
+                System.out.println("NÃ£o foi possivel carregar alguma das imagens.");
             };
             synchronized (sincronia) {
                 meuIndice = vetImgs.size();
@@ -139,7 +139,7 @@ class Game extends JFrame{
                 vetImgs.set(meuIndice+2,new Imagens(inimigo[DIR],J_XD,iPosY,J_TAM_XY,J_TAM_XY));
                 if (iPosY > (J_Y - J_TAM_XY/2) && iPosY < (J_Y + J_TAM_XY/2)){ /**INTERVALO DA ZONA DE ACERTO**/
                     zonaDeAcerto = this;
-                    System.out.println("ESTá NA ZONA DE ACERTO!");
+                    System.out.println("ESTA NA ZONA DE ACERTO!");
                 }
                 else if(!saiu && iPosY >= (J_Y + J_TAM_XY/2)){
                     saiu = true;
@@ -161,7 +161,8 @@ class Game extends JFrame{
     };
 
     Game(){
-        super("Joguito du Lorde");
+        super("jogo em java sem nome");
+        setLocation(400,00);
         add(cn);
         addKeyListener(new KeyAdapter(){
             public void keyPressed(KeyEvent e){
