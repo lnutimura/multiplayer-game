@@ -13,6 +13,7 @@ List of tasks and ideas for implementation
 - Best scores in database
 
 **WORK IN PROGRESS**
+
 Player 2 Mechanic [Guitar Hero]:
 
 	The basic mechanics are working.
