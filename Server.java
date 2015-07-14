@@ -2,7 +2,11 @@ import java.net.*;
 import java.io.*;
 import java.util.*;
 
-class Server {
+class GameGlobals{
+	static boolean isPlayable = true;
+}
+
+class Server{
 	public static void main (String[] args) {
 		ServerSocket serverSocket = null;
 
@@ -29,25 +33,18 @@ class Server {
 
 		Serving serving1 = new Serving(clientSocket1);
 		Serving serving2 = new Serving(clientSocket2);
-		GameServer game = new GameServer();
-		GameServer.Enemy temp = game.new Enemy();
-
-		serving1.enemyLeft = temp.enemyLeft;
-		serving1.enemyCenter = temp.enemyCenter;
-		serving1.enemyRight = temp.enemyRight;
+		GameSetup game = new GameSetup();
+		
+		serving1.currEnemy = game.new Enemy();
 		serving1.start();
 		serving2.start();
 
 		boolean isPlayable = true;
 
-		while (isPlayable) {
+		while (GameGlobals.isPlayable) {
 			try {
-				temp = game.new Enemy();
-				System.out.println(">>>>> " + temp.enemyLeft + ":" + temp.enemyCenter + ":" + temp.enemyRight);
-				serving1.enemyLeft = temp.enemyLeft;
-				serving1.enemyCenter = temp.enemyCenter;
-				serving1.enemyRight = temp.enemyRight;
-				System.out.println("<<<<< " + serving1.enemyLeft + ":" + serving1.enemyCenter + ":" + serving1.enemyRight);
+				serving1.currEnemy = game.new Enemy();				
+				System.out.println("<<<<< " + serving1.currEnemy);
 				Thread.sleep(game.SPAWN_TIME);
 			} catch (InterruptedException e) {}
 		}
@@ -62,12 +59,12 @@ class Server {
 
 class Serving extends Thread {
 	Socket clientSocket;
-
-	static int enemyLeft, enemyCenter, enemyRight;
 	static int count = 0;
 	static boolean isPlayable = true;
 	static PrintStream os[] = new PrintStream[2];
 	static SendToClient send = new SendToClient();
+
+	static GameSetup.Enemy currEnemy = null;
 
 
 	Serving (Socket clientSocket) {
@@ -78,7 +75,7 @@ class Serving extends Thread {
 		try {
 			os[count++] = new PrintStream (clientSocket.getOutputStream(), true);
 
-			while(isPlayable) {
+			while(GameGlobals.isPlayable) {
 				if(!send.isAlive())
 					send.start();
 			}
@@ -99,8 +96,8 @@ class Serving extends Thread {
 		public synchronized void run() {
 			while(true) {
 				for(int i = 0; i < count; i++) {
-					System.out.println("ENEMY " + enemyLeft + ":" + enemyCenter + ":" + enemyRight);
-					os[i].println("ENEMY " + enemyLeft + ":" + enemyCenter + ":" + enemyRight);
+					System.out.println("ENEMY " + currEnemy);
+					os[i].println("ENEMY " + currEnemy);
 				}
 				System.out.println("#########");
 				try {
@@ -111,7 +108,7 @@ class Serving extends Thread {
 	}	
 }
 
-class GameServer {
+class GameSetup {
 	final int STEP = 3;
 	final int STEP_FREQ = 30;
 	final int SPAWN_TIME = 2000;
@@ -144,7 +141,7 @@ class GameServer {
 		}
 
 		public void run() {
-			while (enemyY < SCREEN_H) {
+			while (GameGlobals.isPlayable && enemyY < SCREEN_H) {
 				try {
 					Thread.sleep(STEP_FREQ);
 				} catch (InterruptedException e) {}
@@ -160,6 +157,10 @@ class GameServer {
 					left = true;
 				}
 			}
+		}
+
+		public String toString(){
+			return enemyLeft + ":" + enemyCenter + ":" + enemyRight;
 		}
 	}
 }
