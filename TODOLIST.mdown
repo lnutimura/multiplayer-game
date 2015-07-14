@@ -3,8 +3,8 @@ List of tasks and ideas for implementation
 
 **Tasks**
 - [ ] Enemy generation algorithm
-- [ ] Client 1/Client 2/Server distinction
-- [WIP] Player 2 mechanic [guitar hero]
+- [x] Client 1/Client 2/Server distinction
+- [ ] Player 2 mechanic [guitar hero] : WIP
 - [ ] Score
 
 **Ideas**
