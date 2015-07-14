@@ -54,16 +54,16 @@ class Client1 extends JFrame implements Runnable {
 
     	Scene() {
     		try {
-    			background = ImageIO.read(new File("fundo.png"));
-    			player[LEFT][CIRCLE] = ImageIO.read(new File("bCirc.png"));
-    			player[LEFT][TRIANGLE] = ImageIO.read(new File("bTri.png"));
-    			player[LEFT][SQUARE] = ImageIO.read(new File("bQuad.png"));
-       			player[CENTER][CIRCLE] = ImageIO.read(new File("bCirc.png"));
-    			player[CENTER][TRIANGLE] = ImageIO.read(new File("bTri.png"));
-    			player[CENTER][SQUARE] = ImageIO.read(new File("bQuad.png"));
-       			player[RIGHT][CIRCLE] = ImageIO.read(new File("bCirc.png"));
-    			player[RIGHT][TRIANGLE] = ImageIO.read(new File("bTri.png"));
-    			player[RIGHT][SQUARE] = ImageIO.read(new File("bQuad.png"));
+    			background = ImageIO.read(new File("images/fundo.png"));
+    			player[LEFT][CIRCLE] = ImageIO.read(new File("images/bCirc.png"));
+    			player[LEFT][TRIANGLE] = ImageIO.read(new File("images/bTri.png"));
+    			player[LEFT][SQUARE] = ImageIO.read(new File("images/bQuad.png"));
+       			player[CENTER][CIRCLE] = ImageIO.read(new File("images/bCirc.png"));
+    			player[CENTER][TRIANGLE] = ImageIO.read(new File("images/bTri.png"));
+    			player[CENTER][SQUARE] = ImageIO.read(new File("images/bQuad.png"));
+       			player[RIGHT][CIRCLE] = ImageIO.read(new File("images/bCirc.png"));
+    			player[RIGHT][TRIANGLE] = ImageIO.read(new File("images/bTri.png"));
+    			player[RIGHT][SQUARE] = ImageIO.read(new File("images/bQuad.png"));
     		} catch (IOException e) {
     			System.out.println("Could not load images.");
     		}
@@ -99,29 +99,29 @@ class Client1 extends JFrame implements Runnable {
     	Enemy() {
     		try {
 	    		switch (enemyLeft) {
-	    			case TRIANGLE: enemy[LEFT] = ImageIO.read(new File("tri.png"));
+	    			case TRIANGLE: enemy[LEFT] = ImageIO.read(new File("images/tri.png"));
 	    				break;
-	    			case CIRCLE: enemy[LEFT] = ImageIO.read(new File("circ.png"));
+	    			case CIRCLE: enemy[LEFT] = ImageIO.read(new File("images/circ.png"));
 	    				break;
-	    			case SQUARE: enemy[LEFT] = ImageIO.read(new File("quad.png"));
+	    			case SQUARE: enemy[LEFT] = ImageIO.read(new File("images/quad.png"));
 	    				break;
 	    		}
 
 	      		switch (enemyCenter) {
-	    			case TRIANGLE: enemy[CENTER] = ImageIO.read(new File("tri.png"));
+	    			case TRIANGLE: enemy[CENTER] = ImageIO.read(new File("images/tri.png"));
 	    				break;
-	    			case CIRCLE: enemy[CENTER] = ImageIO.read(new File("circ.png"));
+	    			case CIRCLE: enemy[CENTER] = ImageIO.read(new File("images/circ.png"));
 	    				break;
-	    			case SQUARE: enemy[CENTER] = ImageIO.read(new File("quad.png"));
+	    			case SQUARE: enemy[CENTER] = ImageIO.read(new File("images/quad.png"));
 	    				break;
 	    		}
 
 	    		switch (enemyRight) {
-	    			case TRIANGLE: enemy[RIGHT] = ImageIO.read(new File("tri.png"));
+	    			case TRIANGLE: enemy[RIGHT] = ImageIO.read(new File("images/tri.png"));
 	    				break;
-	    			case CIRCLE: enemy[RIGHT] = ImageIO.read(new File("circ.png"));
+	    			case CIRCLE: enemy[RIGHT] = ImageIO.read(new File("images/circ.png"));
 	    				break;
-	    			case SQUARE: enemy[RIGHT] = ImageIO.read(new File("quad.png"));
+	    			case SQUARE: enemy[RIGHT] = ImageIO.read(new File("images/quad.png"));
 	    				break;
 	    		}
     		} catch (IOException e) {
