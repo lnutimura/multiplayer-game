@@ -4,6 +4,8 @@ import java.util.*;
 
 class GameGlobals{
 	static boolean isPlayable = true;
+	static int playerLeft, playerCenter, playerRight;
+	static int clientCount = 0;
 }
 
 class Server{
@@ -34,8 +36,10 @@ class Server{
 		Serving serving1 = new Serving(clientSocket1);
 		Serving serving2 = new Serving(clientSocket2);
 		GameSetup game = new GameSetup();
+		GameSetup.Enemy currEnemy = null;
 		
-		serving1.currEnemy = game.new Enemy();
+		currEnemy = game.new Enemy();
+
 		serving1.start();
 		serving2.start();
 
@@ -43,9 +47,12 @@ class Server{
 
 		while (GameGlobals.isPlayable) {
 			try {
-				serving1.currEnemy = game.new Enemy();				
-				System.out.println("<<<<< " + serving1.currEnemy);
 				Thread.sleep(game.SPAWN_TIME);
+				currEnemy = game.new Enemy();				
+				for(int i = 0; i < GameGlobals.clientCount; i++) {
+					System.out.println("ENEMY " + currEnemy);
+					serving1.os[i].println("ENEMY " + currEnemy);
+				}
 			} catch (InterruptedException e) {}
 		}
 
@@ -59,13 +66,8 @@ class Server{
 
 class Serving extends Thread {
 	Socket clientSocket;
-	static int count = 0;
 	static boolean isPlayable = true;
-	static PrintStream os[] = new PrintStream[2];
-	static SendToClient send = new SendToClient();
-
-	static GameSetup.Enemy currEnemy = null;
-
+	public static PrintStream os[] = new PrintStream[2];
 
 	Serving (Socket clientSocket) {
 		this.clientSocket = clientSocket;
@@ -73,14 +75,11 @@ class Serving extends Thread {
 
 	public synchronized void run() {
 		try {
-			os[count++] = new PrintStream (clientSocket.getOutputStream(), true);
+			os[GameGlobals.clientCount++] = new PrintStream (clientSocket.getOutputStream(), true);
 
-			while(GameGlobals.isPlayable) {
-				if(!send.isAlive())
-					send.start();
-			}
+			while(GameGlobals.isPlayable);
 
-			for(int i = 0; i < count; i++) {
+			for(int i = 0; i < GameGlobals.clientCount; i++) {
 				os[i].close();
 			}
 
@@ -91,21 +90,6 @@ class Serving extends Thread {
 			System.out.println("Connection closed by client.");
 		}
 	}
-
-	static class SendToClient extends Thread {
-		public synchronized void run() {
-			while(true) {
-				for(int i = 0; i < count; i++) {
-					System.out.println("ENEMY " + currEnemy);
-					os[i].println("ENEMY " + currEnemy);
-				}
-				System.out.println("#########");
-				try {
-					sleep(2000);
-				} catch (InterruptedException e) {}
-			}
-		}
-	}	
 }
 
 class GameSetup {

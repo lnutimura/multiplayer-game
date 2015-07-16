@@ -132,7 +132,7 @@ class Client1 extends JFrame implements Runnable {
     			myIndex = arrayImgs.size();
     			arrayImgs.add(new Images(enemy[LEFT], S_XL, enemyY, S_SIZE_XY, S_SIZE_XY));
      			arrayImgs.add(new Images(enemy[CENTER], S_XC, enemyY, S_SIZE_XY, S_SIZE_XY));
-      		arrayImgs.add(new Images(enemy[RIGHT], S_XR, enemyY, S_SIZE_XY, S_SIZE_XY));
+      		    arrayImgs.add(new Images(enemy[RIGHT], S_XR, enemyY, S_SIZE_XY, S_SIZE_XY));
     		}
     		new Thread(this).start();
     	}
@@ -146,10 +146,10 @@ class Client1 extends JFrame implements Runnable {
     			enemyY += STEP;
 
     			arrayImgs.set(myIndex, new Images(enemy[LEFT], S_XL, enemyY, S_SIZE_XY, S_SIZE_XY));
-         	arrayImgs.set(myIndex+1, new Images(enemy[CENTER], S_XC, enemyY, S_SIZE_XY, S_SIZE_XY));
-          arrayImgs.set(myIndex+2, new Images(enemy[RIGHT], S_XR, enemyY, S_SIZE_XY, S_SIZE_XY));
+         	    arrayImgs.set(myIndex+1, new Images(enemy[CENTER], S_XC, enemyY, S_SIZE_XY, S_SIZE_XY));
+                arrayImgs.set(myIndex+2, new Images(enemy[RIGHT], S_XR, enemyY, S_SIZE_XY, S_SIZE_XY));
 
-          sc.repaint();
+                sc.repaint();
     		}
    	  }
    	}
@@ -161,7 +161,7 @@ class Client1 extends JFrame implements Runnable {
     	addKeyListener(new KeyAdapter() {
     		public void keyPressed(KeyEvent e) {
 	    		switch(e.getKeyCode()) {
-	    			case KeyEvent.VK_A:
+	    	case KeyEvent.VK_A:
                 switch(currentForm[LEFT]){
                 case CIRCLE:
                     currentForm[LEFT] = TRIANGLE;
@@ -176,6 +176,7 @@ class Client1 extends JFrame implements Runnable {
                     arrayImgs.set(1,new Images(player[LEFT][currentForm[LEFT]],S_XL,S_Y,S_SIZE_XY,S_SIZE_XY));
                     break;
                 }
+
                 break;
             case KeyEvent.VK_S:
                 switch(currentForm[CENTER]){
@@ -210,6 +211,7 @@ class Client1 extends JFrame implements Runnable {
                 }
                 break;
             }
+            // os.println("PLAYER " + currentForm[LEFT] + ":" + currentForm[CENTER] + ":" + currentForm[RIGHT]);
             sc.repaint();
     		}
     	});
@@ -222,10 +224,12 @@ class Client1 extends JFrame implements Runnable {
     public void run() {
     	Socket socket = null;
     	Scanner is = null;
+        PrintStream os = null;
     	
     	try {
     		socket = new Socket("127.0.0.1", 8080);
     		is = new Scanner(socket.getInputStream());
+            os = new PrintStream(socket.getOutputStream(), true);
     	} catch (UnknownHostException e) {
     	  System.err.println("Don't know about host.");
       } catch (IOException e) {
@@ -250,6 +254,7 @@ class Client1 extends JFrame implements Runnable {
      			} catch (InterruptedException e) {}
       	}
 
+        os.close();
       	is.close();
       	socket.close();
       } catch (UnknownHostException e) {
