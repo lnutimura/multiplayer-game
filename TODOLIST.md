@@ -6,10 +6,11 @@ List of tasks and ideas for implementation
 - [x] Client 1/Client 2/Server distinction
 - [ ] Player 2 mechanic [guitar hero] : WIP
 - [ ] Score
+- [x] Right and left handed (plays with [A, S, D] and [LEFT, UP, RIGHT] arrow keys)
 
 **Ideas**
+- Client loads configs (screen size, game speed, etc.) from Server
 - Players input name
-- Right or left handed (plays with AWSD or arrow keys)
 - Best scores in database
 
 **WORK IN PROGRESS**

@@ -2,6 +2,9 @@ import java.net.*;
 import java.io.*;
 import java.util.*;
 
+class ServerGlobals{
+	static boolean isPlayable = true;
+}
 class Server {
 	public static void main (String[] args) {
 		ServerSocket serverSocket = null;
@@ -9,8 +12,8 @@ class Server {
 		try {
 			serverSocket = new ServerSocket(8080);
 		} catch (IOException e) {
-			System.out.println("Could not listen on port 8080, " + e);
-			System.exit(1);
+			System.out.println("Could not listen on port 8080: " + e);
+			System.exit(0);
 		}
 
 		Socket clientSocket1 = null;
@@ -19,6 +22,7 @@ class Server {
 		try {
 			System.out.println("Waiting for players (0/2).");
 			clientSocket1 = serverSocket.accept();
+
 			System.out.println("Waiting for players (1/2).");
 			clientSocket2 = serverSocket.accept();
 			System.out.println("All players connected (2/2).");
@@ -32,22 +36,22 @@ class Server {
 		GameServer game = new GameServer();
 		GameServer.Enemy temp = game.new Enemy();
 
-		serving1.enemyLeft = temp.enemyLeft;
-		serving1.enemyCenter = temp.enemyCenter;
-		serving1.enemyRight = temp.enemyRight;
+		
 		serving1.start();
 		serving2.start();
+		try { Thread.sleep(500);}
+		catch (InterruptedException e) {}
 
-		boolean isPlayable = true;
+		serving1.os.println("PLAYERID 1");
+		serving2.os.println("PLAYERID 2");
 
-		while (isPlayable) {
+
+		while (ServerGlobals.isPlayable) {
 			try {
+				System.out.println("Next Enemy");
 				temp = game.new Enemy();
-				System.out.println(">>>>> " + temp.enemyLeft + ":" + temp.enemyCenter + ":" + temp.enemyRight);
-				serving1.enemyLeft = temp.enemyLeft;
-				serving1.enemyCenter = temp.enemyCenter;
-				serving1.enemyRight = temp.enemyRight;
-				System.out.println("<<<<< " + serving1.enemyLeft + ":" + serving1.enemyCenter + ":" + serving1.enemyRight);
+				serving1.os.println("ENEMY " + temp);
+				serving2.os.println("ENEMY " + temp);
 				Thread.sleep(game.SPAWN_TIME);
 			} catch (InterruptedException e) {}
 		}
@@ -63,11 +67,7 @@ class Server {
 class Serving extends Thread {
 	Socket clientSocket;
 
-	static int enemyLeft, enemyCenter, enemyRight;
-	static int count = 0;
-	static boolean isPlayable = true;
-	static PrintStream os[] = new PrintStream[2];
-	static SendToClient send = new SendToClient();
+	PrintStream os;
 
 
 	Serving (Socket clientSocket) {
@@ -76,16 +76,11 @@ class Serving extends Thread {
 
 	public synchronized void run() {
 		try {
-			os[count++] = new PrintStream (clientSocket.getOutputStream(), true);
+			os = new PrintStream(clientSocket.getOutputStream(), true);
 
-			while(isPlayable) {
-				if(!send.isAlive())
-					send.start();
-			}
-
-			for(int i = 0; i < count; i++) {
-				os[i].close();
-			}
+			while(ServerGlobals.isPlayable);
+			
+			os.close();
 
 			clientSocket.close();
 		} catch (IOException e) {
@@ -94,21 +89,6 @@ class Serving extends Thread {
 			System.out.println("Connection closed by client.");
 		}
 	}
-
-	static class SendToClient extends Thread {
-		public synchronized void run() {
-			while(true) {
-				for(int i = 0; i < count; i++) {
-					System.out.println("ENEMY " + enemyLeft + ":" + enemyCenter + ":" + enemyRight);
-					os[i].println("ENEMY " + enemyLeft + ":" + enemyCenter + ":" + enemyRight);
-				}
-				System.out.println("#########");
-				try {
-					sleep(2000);
-				} catch (InterruptedException e) {}
-			}
-		}
-	}	
 }
 
 class GameServer {
@@ -117,10 +97,10 @@ class GameServer {
 	final int SPAWN_TIME = 2000;
 	final int SCREEN_W = 500;
 	final int SCREEN_H = 700;
-	final int S_SIZE_XY = 50;
+	final int S_SIZE_XY = 65;
 	final int S_Y = SCREEN_H - S_SIZE_XY*2;
 	Enemy hitZone = null;
-	boolean left = false;
+	boolean left = false; //left de saiu
 
 	class Enemy implements Runnable {
 		int enemyY = 0;
@@ -160,6 +140,10 @@ class GameServer {
 					left = true;
 				}
 			}
+		}
+
+		public String toString(){
+			return enemyLeft + ":" + enemyCenter + ":" + enemyRight;
 		}
 	}
 }
