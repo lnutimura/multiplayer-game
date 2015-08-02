@@ -4,7 +4,7 @@ List of tasks and ideas for implementation
 **Tasks**
 - [x] Client/Server distinction
 - [x] Right and left handed (plays with [A, S, D] and [LEFT, UP, RIGHT] arrow keys)
-- [ ] Enemy generation algorithm : WIP
+- [x] Enemy generation algorithm
 - [ ] Player 2 mechanic [guitar hero] : WIP
 - [ ] Scoring/Missing sounds
 

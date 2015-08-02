@@ -5,62 +5,10 @@ import java.util.*;
 class ServerGlobals{
 	static boolean isPlayable = true;
 }
-class Server {
-	public static void main (String[] args) {
-		ServerSocket serverSocket = null;
-
-		try {
-			serverSocket = new ServerSocket(8080);
-		} catch (IOException e) {
-			System.out.println("Could not listen on port 8080: " + e);
-			System.exit(0);
-		}
-
-		Socket clientSocket1 = null;
-		Socket clientSocket2 = null;
-
-		try {
-			System.out.println("Waiting for players (0/2).");
-			clientSocket1 = serverSocket.accept();
-
-			System.out.println("Waiting for players (1/2).");
-			clientSocket2 = serverSocket.accept();
-			System.out.println("All players connected (2/2).");
-		} catch (IOException e) {
-			System.out.println("Accept failed, " + e);
-			System.exit(1);
-		}
-
-		Serving serving1 = new Serving(clientSocket1);
-		Serving serving2 = new Serving(clientSocket2);
-		GameServer game = new GameServer();
-		GameServer.EnemySequencer sequencer;
-
-		
-		serving1.start();
-		serving2.start();
-
-		try { Thread.sleep(100);}
-		catch (InterruptedException e) {}
-
-		serving1.os.println("PLAYERID 1");
-		serving2.os.println("PLAYERID 2");
-
-		sequencer = game.new EnemySequencer(serving1.os, serving2.os);
-		new Thread(sequencer).start();
-
-		while (ServerGlobals.isPlayable);
-
-		try { serverSocket.close(); }
-		catch (IOException e) { e.printStackTrace(); }
-	}
-}
 
 class Serving extends Thread {
 	Socket clientSocket;
-
 	PrintStream os;
-
 
 	Serving (Socket clientSocket) {
 		this.clientSocket = clientSocket;
@@ -83,7 +31,7 @@ class Serving extends Thread {
 	}
 }
 
-class GameServer {
+class Server {
 	final int STEP = 3;
 	final int STEP_FREQ = 30;
 	final int SPAWN_TIME = 2000;
@@ -114,8 +62,6 @@ class GameServer {
 			enemy[LEFT] = r.nextInt(4);
 			enemy[CENTER] = r.nextInt(4);
 			enemy[RIGHT] = r.nextInt(4);
-
-			//new Thread(this).start();
 		}
 
 		Enemy(StringBuilder seq) {
@@ -236,6 +182,60 @@ class GameServer {
 				catch (InterruptedException ie) {};
 			}
 		}
+	}
+
+	public static void main (String[] args) {
+		Server server = new Server();
+		ServerSocket serverSocket = null;
+
+		try {
+			serverSocket = new ServerSocket(8080);
+		} catch (IOException e) {
+			System.out.println("Could not listen on port 8080: " + e);
+			System.exit(0);
+		}
+
+		Socket clientSocket1 = null;
+		Socket clientSocket2 = null;
+
+		try {
+			System.out.println("Waiting for players (0/2).");
+			clientSocket1 = serverSocket.accept();
+
+			System.out.println("Waiting for players (1/2).");
+			clientSocket2 = serverSocket.accept();
+			System.out.println("All players connected (2/2).");
+		} catch (IOException e) {
+			System.out.println("Accept failed, " + e);
+			System.exit(1);
+		}
+
+		Serving serving1 = new Serving(clientSocket1);
+		Serving serving2 = new Serving(clientSocket2);
+
+		serving1.start();
+		serving2.start();
+		
+		try { Thread.sleep(100);}
+		catch (InterruptedException e) {}
+
+		Server.EnemySequencer sequencer = server.new EnemySequencer(serving1.os, serving2.os);
+
+		try { Thread.sleep(100);}
+		catch (InterruptedException e) {}
+
+		serving1.os.println("PLAYERID 1");
+		serving2.os.println("PLAYERID 2");
+
+		try { Thread.sleep(100);}
+		catch (InterruptedException e) {}
+
+		new Thread(sequencer).start();
+
+		while (ServerGlobals.isPlayable);
+
+		try { serverSocket.close(); }
+		catch (IOException e) { e.printStackTrace(); }
 	}
 
 }
