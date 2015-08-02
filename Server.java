@@ -146,4 +146,16 @@ class GameServer {
 			return enemyLeft + ":" + enemyCenter + ":" + enemyRight;
 		}
 	}
+
+	class EnemySequencer implements Runnable{ //WORKING
+		String[] sequences = {
+			"001:010:100:010:001:010",
+			"001:010:100:001:010:100",
+			"100:100:010:010:001:001",
+			"101:010:111:010:101:010"
+		};
+
+		public void run(){}
+	}
+
 }

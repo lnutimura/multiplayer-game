@@ -65,7 +65,7 @@ class Client extends JFrame implements Runnable {
     			player[RIGHT][TRIANGLE] = ImageIO.read(new File("images/bTri.png"));
     			player[RIGHT][SQUARE] = ImageIO.read(new File("images/bQuad.png"));
     		} catch (IOException e) {
-    			System.out.println("Could not load images.");
+    			System.err.println("Could not load images.");
     		}
 
     		currentForm[LEFT] = CIRCLE;
@@ -125,7 +125,7 @@ class Client extends JFrame implements Runnable {
 	    				break;
 	    		}
     		} catch (IOException e) {
-    			System.out.println("Could not load images.");
+    			System.err.println("Could not load images.");
     		}
 
     		synchronized (sync) {

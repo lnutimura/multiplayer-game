@@ -2,16 +2,18 @@
 List of tasks and ideas for implementation
 
 **Tasks**
-- [ ] Enemy generation algorithm
-- [x] Client 1/Client 2/Server distinction
+- [x] Client/Server distinction
+- [x] Right and left handed (plays with [A, S, D] and [LEFT, UP, RIGHT] arrow keys)
+- [ ] Enemy generation algorithm : WIP
 - [ ] Player 2 mechanic [guitar hero] : WIP
 - [ ] Score
-- [x] Right and left handed (plays with [A, S, D] and [LEFT, UP, RIGHT] arrow keys)
 
 **Ideas**
-- Client loads configs (screen size, game speed, etc.) from Server
+- Scoring/Missing sounds
+- Background music
 - Players input name
 - Best scores in database
+- Standalone client app (for quicker testing adjustments) maybe?
 
 **WORK IN PROGRESS**
 
