@@ -6,10 +6,10 @@ List of tasks and ideas for implementation
 - [x] Right and left handed (plays with [A, S, D] and [LEFT, UP, RIGHT] arrow keys)
 - [ ] Enemy generation algorithm : WIP
 - [ ] Player 2 mechanic [guitar hero] : WIP
-- [ ] Score
+- [ ] Scoring/Missing sounds
 
 **Ideas**
-- Scoring/Missing sounds
+- Input Server's IP at Runtime
 - Background music
 - Players input name
 - Best scores in database

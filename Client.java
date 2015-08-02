@@ -99,30 +99,30 @@ class Client extends JFrame implements Runnable {
     	Enemy(int left, int center, int right) {
     		try {
 	    		switch (left) {
-	    			case TRIANGLE: enemy[LEFT] = ImageIO.read(new File("images/tri.png"));
-	    				break;
-	    			case CIRCLE: enemy[LEFT] = ImageIO.read(new File("images/circ.png"));
-	    				break;
-	    			case SQUARE: enemy[LEFT] = ImageIO.read(new File("images/quad.png"));
-	    				break;
+    			case TRIANGLE: enemy[LEFT] = ImageIO.read(new File("images/tri.png"));
+    				break;
+    			case CIRCLE: enemy[LEFT] = ImageIO.read(new File("images/circ.png"));
+    				break;
+    			case SQUARE: enemy[LEFT] = ImageIO.read(new File("images/quad.png"));
+    				break;
 	    		}
 
-	      		switch (center) {
-	    			case TRIANGLE: enemy[CENTER] = ImageIO.read(new File("images/tri.png"));
-	    				break;
-	    			case CIRCLE: enemy[CENTER] = ImageIO.read(new File("images/circ.png"));
-	    				break;
-	    			case SQUARE: enemy[CENTER] = ImageIO.read(new File("images/quad.png"));
-	    				break;
+      		switch (center) {
+    			case TRIANGLE: enemy[CENTER] = ImageIO.read(new File("images/tri.png"));
+    				break;
+    			case CIRCLE: enemy[CENTER] = ImageIO.read(new File("images/circ.png"));
+    				break;
+    			case SQUARE: enemy[CENTER] = ImageIO.read(new File("images/quad.png"));
+    				break;
 	    		}
 
 	    		switch (right) {
-	    			case TRIANGLE: enemy[RIGHT] = ImageIO.read(new File("images/tri.png"));
-	    				break;
-	    			case CIRCLE: enemy[RIGHT] = ImageIO.read(new File("images/circ.png"));
-	    				break;
-	    			case SQUARE: enemy[RIGHT] = ImageIO.read(new File("images/quad.png"));
-	    				break;
+    			case TRIANGLE: enemy[RIGHT] = ImageIO.read(new File("images/tri.png"));
+    				break;
+    			case CIRCLE: enemy[RIGHT] = ImageIO.read(new File("images/circ.png"));
+    				break;
+    			case SQUARE: enemy[RIGHT] = ImageIO.read(new File("images/quad.png"));
+    				break;
 	    		}
     		} catch (IOException e) {
     			System.err.println("Could not load images.");
@@ -161,57 +161,57 @@ class Client extends JFrame implements Runnable {
     	addKeyListener(new KeyAdapter() {
     		public void keyPressed(KeyEvent e) {
 	    		switch(e.getKeyCode()) {
-            case KeyEvent.VK_LEFT:
-	    			case KeyEvent.VK_A:
-              switch(currentForm[LEFT]){
+          case KeyEvent.VK_LEFT:
+    			case KeyEvent.VK_A:
+            switch(currentForm[LEFT]){
+            case CIRCLE:
+                currentForm[LEFT] = TRIANGLE;
+                arrayImgs.set(1,new Images(player[LEFT][currentForm[LEFT]],S_XL,S_Y,S_SIZE_XY,S_SIZE_XY));
+                break;
+            case TRIANGLE:
+                currentForm[LEFT] = SQUARE;
+                arrayImgs.set(1,new Images(player[LEFT][currentForm[LEFT]],S_XL,S_Y,S_SIZE_XY,S_SIZE_XY));
+                break;
+            case SQUARE:
+                currentForm[LEFT] = CIRCLE;
+                arrayImgs.set(1,new Images(player[LEFT][currentForm[LEFT]],S_XL,S_Y,S_SIZE_XY,S_SIZE_XY));
+                break;
+            }
+            break;
+          case KeyEvent.VK_UP:
+          case KeyEvent.VK_S:
+              switch(currentForm[CENTER]){
               case CIRCLE:
-                  currentForm[LEFT] = TRIANGLE;
-                  arrayImgs.set(1,new Images(player[LEFT][currentForm[LEFT]],S_XL,S_Y,S_SIZE_XY,S_SIZE_XY));
+                  currentForm[CENTER] = TRIANGLE;
+                  arrayImgs.set(2,new Images(player[CENTER][currentForm[CENTER]],S_XC,S_Y,S_SIZE_XY,S_SIZE_XY));
                   break;
               case TRIANGLE:
-                  currentForm[LEFT] = SQUARE;
-                  arrayImgs.set(1,new Images(player[LEFT][currentForm[LEFT]],S_XL,S_Y,S_SIZE_XY,S_SIZE_XY));
+                  currentForm[CENTER] = SQUARE;
+                  arrayImgs.set(2,new Images(player[CENTER][currentForm[CENTER]],S_XC,S_Y,S_SIZE_XY,S_SIZE_XY));
                   break;
               case SQUARE:
-                  currentForm[LEFT] = CIRCLE;
-                  arrayImgs.set(1,new Images(player[LEFT][currentForm[LEFT]],S_XL,S_Y,S_SIZE_XY,S_SIZE_XY));
+                  currentForm[CENTER] = CIRCLE;
+                  arrayImgs.set(2,new Images(player[CENTER][currentForm[CENTER]],S_XC,S_Y,S_SIZE_XY,S_SIZE_XY));
                   break;
               }
               break;
-              case KeyEvent.VK_UP:
-              case KeyEvent.VK_S:
-                  switch(currentForm[CENTER]){
-                  case CIRCLE:
-                      currentForm[CENTER] = TRIANGLE;
-                      arrayImgs.set(2,new Images(player[CENTER][currentForm[CENTER]],S_XC,S_Y,S_SIZE_XY,S_SIZE_XY));
-                      break;
-                  case TRIANGLE:
-                      currentForm[CENTER] = SQUARE;
-                      arrayImgs.set(2,new Images(player[CENTER][currentForm[CENTER]],S_XC,S_Y,S_SIZE_XY,S_SIZE_XY));
-                      break;
-                  case SQUARE:
-                      currentForm[CENTER] = CIRCLE;
-                      arrayImgs.set(2,new Images(player[CENTER][currentForm[CENTER]],S_XC,S_Y,S_SIZE_XY,S_SIZE_XY));
-                      break;
-                  }
-                  break;
-              case KeyEvent.VK_RIGHT:
-              case KeyEvent.VK_D:
-                  switch(currentForm[RIGHT]){
-                  case CIRCLE:
-                      currentForm[RIGHT] = TRIANGLE;
-                      arrayImgs.set(3,new Images(player[RIGHT][currentForm[RIGHT]],S_XR,S_Y,S_SIZE_XY,S_SIZE_XY));
-                      break;
-                  case TRIANGLE:
-                      currentForm[RIGHT] = SQUARE;
-                      arrayImgs.set(3,new Images(player[RIGHT][currentForm[RIGHT]],S_XR,S_Y,S_SIZE_XY,S_SIZE_XY));
-                      break;
-                  case SQUARE:
-                      currentForm[RIGHT] = CIRCLE;
-                      arrayImgs.set(3,new Images(player[RIGHT][currentForm[RIGHT]],S_XR,S_Y,S_SIZE_XY,S_SIZE_XY));
-                      break;
-                  }
-                  break;
+            case KeyEvent.VK_RIGHT:
+            case KeyEvent.VK_D:
+                switch(currentForm[RIGHT]){
+                case CIRCLE:
+                    currentForm[RIGHT] = TRIANGLE;
+                    arrayImgs.set(3,new Images(player[RIGHT][currentForm[RIGHT]],S_XR,S_Y,S_SIZE_XY,S_SIZE_XY));
+                    break;
+                case TRIANGLE:
+                    currentForm[RIGHT] = SQUARE;
+                    arrayImgs.set(3,new Images(player[RIGHT][currentForm[RIGHT]],S_XR,S_Y,S_SIZE_XY,S_SIZE_XY));
+                    break;
+                case SQUARE:
+                    currentForm[RIGHT] = CIRCLE;
+                    arrayImgs.set(3,new Images(player[RIGHT][currentForm[RIGHT]],S_XR,S_Y,S_SIZE_XY,S_SIZE_XY));
+                    break;
+                }
+                break;
             }
             sc.repaint();
     		}
@@ -267,7 +267,7 @@ class Client extends JFrame implements Runnable {
       	is.close();
       	socket.close();
       } catch (Exception e){
-        System.err.println("Server terminated. Game will be shut down...");
+        System.out.println("Server terminated. Game will be shut down: " + e);
       }
       endGame();
     }
