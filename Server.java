@@ -9,17 +9,36 @@ class ServerGlobals{
 class Serving extends Thread {
 	Socket clientSocket;
 	PrintStream os;
+	Scanner is;
+	int playerID;
 
-	Serving (Socket clientSocket) {
+	Serving (Socket clientSocket, int id) {
 		this.clientSocket = clientSocket;
+		playerID = id;
 	}
 
 	public synchronized void run() {
 		try {
 			os = new PrintStream(clientSocket.getOutputStream(), true);
+			/*parte nova*/
+			is = new Scanner(clientSocket.getInputStream());
+			String clientStr;
+			Character keyPressed;
 
-			while(ServerGlobals.isPlayable);
-			
+			while(ServerGlobals.isPlayable){
+				clientStr = is.nextLine();
+				if (clientStr.startsWith("KEYPRESS ")){
+					keyPressed = clientStr.charAt(9);
+					if (playerID == 1){
+						System.out.println("PLAYER 1 PRESSED "+keyPressed);
+					}
+					else{
+						//HANDLE GUITAR HERO PORTION
+					}
+				}
+			}
+			is.close();
+			/*fim parte nova*/
 			os.close();
 
 			clientSocket.close();
@@ -172,15 +191,14 @@ class Server {
 				//SEND TO CLIENTS
 				player1.println("ENEMY " + nextEnemy.charAt(LEFT) + ":" + nextEnemy.charAt(CENTER) + ":" + nextEnemy.charAt(RIGHT));
 				player2.println("ENEMY " + nextEnemy.charAt(LEFT) + ":" + nextEnemy.charAt(CENTER) + ":" + nextEnemy.charAt(RIGHT));
+				try{ Thread.sleep(SPAWN_TIME); }
+				catch (InterruptedException ie) {};
 			}
 		}
 
 		public void run(){
-			while (ServerGlobals.isPlayable){
+			while (ServerGlobals.isPlayable)
 				generate();
-				try{ Thread.sleep(SPAWN_TIME); }
-				catch (InterruptedException ie) {};
-			}
 		}
 	}
 
@@ -210,8 +228,8 @@ class Server {
 			System.exit(1);
 		}
 
-		Serving serving1 = new Serving(clientSocket1);
-		Serving serving2 = new Serving(clientSocket2);
+		Serving serving1 = new Serving(clientSocket1, 1);
+		Serving serving2 = new Serving(clientSocket2, 2);
 
 		serving1.start();
 		serving2.start();

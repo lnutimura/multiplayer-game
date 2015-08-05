@@ -8,8 +8,8 @@ import java.awt.event.*;
 import java.awt.image.*;
 
 class ClientGlobals{
-  boolean isPlayable = true;
-  int playerID = 0;
+  static boolean isPlayable = true;
+  static int playerID = 0;
 }
 
 class Client extends JFrame implements Runnable {
@@ -31,11 +31,13 @@ class Client extends JFrame implements Runnable {
     final int S_XR = 313;
     final int S_SIZE_XY = 65;
     final int S_Y = SCREEN_H - S_SIZE_XY*2;
-    ClientGlobals globals = new ClientGlobals();
+    //ClientGlobals ClientGlobals = new ClientGlobals();
     int currentForm[] = new int[3];
     Image player[][] = new Image[3][3];
     Scene sc = new Scene();
     Object sync = new Object();
+    Scanner in;
+    PrintStream out;
 
     class Images {
     	public Image graphic;
@@ -154,8 +156,12 @@ class Client extends JFrame implements Runnable {
  	    }
    	}
 
-    Client() {
+    Client(Scanner in, PrintStream out) {
     	super("Untitled Game");
+      
+      this.in = in;
+      this.out = out;
+
     	setLocation(400,0);
     	add(sc);
     	addKeyListener(new KeyAdapter() {
@@ -165,52 +171,55 @@ class Client extends JFrame implements Runnable {
     			case KeyEvent.VK_A:
             switch(currentForm[LEFT]){
             case CIRCLE:
-                currentForm[LEFT] = TRIANGLE;
-                arrayImgs.set(1,new Images(player[LEFT][currentForm[LEFT]],S_XL,S_Y,S_SIZE_XY,S_SIZE_XY));
-                break;
+              currentForm[LEFT] = TRIANGLE;
+              arrayImgs.set(1,new Images(player[LEFT][currentForm[LEFT]],S_XL,S_Y,S_SIZE_XY,S_SIZE_XY));
+              break;
             case TRIANGLE:
-                currentForm[LEFT] = SQUARE;
-                arrayImgs.set(1,new Images(player[LEFT][currentForm[LEFT]],S_XL,S_Y,S_SIZE_XY,S_SIZE_XY));
-                break;
+              currentForm[LEFT] = SQUARE;
+              arrayImgs.set(1,new Images(player[LEFT][currentForm[LEFT]],S_XL,S_Y,S_SIZE_XY,S_SIZE_XY));
+              break;
             case SQUARE:
-                currentForm[LEFT] = CIRCLE;
-                arrayImgs.set(1,new Images(player[LEFT][currentForm[LEFT]],S_XL,S_Y,S_SIZE_XY,S_SIZE_XY));
-                break;
+              currentForm[LEFT] = CIRCLE;
+              arrayImgs.set(1,new Images(player[LEFT][currentForm[LEFT]],S_XL,S_Y,S_SIZE_XY,S_SIZE_XY));
+              break;
             }
+            out.println("KEYPRESS A");
             break;
           case KeyEvent.VK_UP:
           case KeyEvent.VK_S:
               switch(currentForm[CENTER]){
               case CIRCLE:
-                  currentForm[CENTER] = TRIANGLE;
-                  arrayImgs.set(2,new Images(player[CENTER][currentForm[CENTER]],S_XC,S_Y,S_SIZE_XY,S_SIZE_XY));
-                  break;
+                currentForm[CENTER] = TRIANGLE;
+                arrayImgs.set(2,new Images(player[CENTER][currentForm[CENTER]],S_XC,S_Y,S_SIZE_XY,S_SIZE_XY));
+                break;
               case TRIANGLE:
-                  currentForm[CENTER] = SQUARE;
-                  arrayImgs.set(2,new Images(player[CENTER][currentForm[CENTER]],S_XC,S_Y,S_SIZE_XY,S_SIZE_XY));
-                  break;
+                currentForm[CENTER] = SQUARE;
+                arrayImgs.set(2,new Images(player[CENTER][currentForm[CENTER]],S_XC,S_Y,S_SIZE_XY,S_SIZE_XY));
+                break;
               case SQUARE:
-                  currentForm[CENTER] = CIRCLE;
-                  arrayImgs.set(2,new Images(player[CENTER][currentForm[CENTER]],S_XC,S_Y,S_SIZE_XY,S_SIZE_XY));
-                  break;
+                currentForm[CENTER] = CIRCLE;
+                arrayImgs.set(2,new Images(player[CENTER][currentForm[CENTER]],S_XC,S_Y,S_SIZE_XY,S_SIZE_XY));
+                break;
               }
+              out.println("KEYPRESS S");
               break;
             case KeyEvent.VK_RIGHT:
             case KeyEvent.VK_D:
                 switch(currentForm[RIGHT]){
                 case CIRCLE:
-                    currentForm[RIGHT] = TRIANGLE;
-                    arrayImgs.set(3,new Images(player[RIGHT][currentForm[RIGHT]],S_XR,S_Y,S_SIZE_XY,S_SIZE_XY));
-                    break;
+                  currentForm[RIGHT] = TRIANGLE;
+                  arrayImgs.set(3,new Images(player[RIGHT][currentForm[RIGHT]],S_XR,S_Y,S_SIZE_XY,S_SIZE_XY));
+                  break;
                 case TRIANGLE:
-                    currentForm[RIGHT] = SQUARE;
-                    arrayImgs.set(3,new Images(player[RIGHT][currentForm[RIGHT]],S_XR,S_Y,S_SIZE_XY,S_SIZE_XY));
-                    break;
+                  currentForm[RIGHT] = SQUARE;
+                  arrayImgs.set(3,new Images(player[RIGHT][currentForm[RIGHT]],S_XR,S_Y,S_SIZE_XY,S_SIZE_XY));
+                  break;
                 case SQUARE:
-                    currentForm[RIGHT] = CIRCLE;
-                    arrayImgs.set(3,new Images(player[RIGHT][currentForm[RIGHT]],S_XR,S_Y,S_SIZE_XY,S_SIZE_XY));
-                    break;
+                  currentForm[RIGHT] = CIRCLE;
+                  arrayImgs.set(3,new Images(player[RIGHT][currentForm[RIGHT]],S_XR,S_Y,S_SIZE_XY,S_SIZE_XY));
+                  break;
                 }
+                out.println("KEYPRESS D");
                 break;
             }
             sc.repaint();
@@ -223,62 +232,64 @@ class Client extends JFrame implements Runnable {
     }
 
     public void run() {
-    	Socket socket = null;
-    	Scanner is = null;
-    	
-    	try {
-    		socket = new Socket("127.0.0.1", 8080);
-    		is = new Scanner(socket.getInputStream());
-    	} catch (UnknownHostException e) {
-      		System.err.println("Don't know about host.");
+      try {
+        String response;
+        int enemyLeft, enemyCenter, enemyRight;
+
+        while (ClientGlobals.isPlayable) {
+          response = in.nextLine();
+          // ENEMY x:y:z
+          if (response.startsWith("ENEMY")) {
+            enemyLeft = Character.getNumericValue(response.charAt(6));
+            enemyCenter = Character.getNumericValue(response.charAt(8));
+            enemyRight = Character.getNumericValue(response.charAt(10));
+            System.out.println(">>>> " + enemyLeft + ":" + enemyCenter + ":" + enemyRight);
+            new Enemy(enemyLeft, enemyCenter, enemyRight);
+          }
+          try {
+            Thread.sleep(SPAWN_TIME);
+          } catch (InterruptedException e) {}
+        }
+
+      } catch (Exception e){
+        System.out.println("Server terminated. Game will be shut down: " + e);
+      }
+      in.close();
+      out.close();
+      endGame();
+    }
+
+    public static void endGame(){
+      System.out.println("Game over.");
+      System.exit(0);
+    }
+
+    public static void main (String[] args) {
+      Socket socket = null;
+      Scanner is = null;
+      PrintStream os = null;
+      
+      try {
+        socket = new Socket("127.0.0.1", 8080);
+        is = new Scanner(socket.getInputStream());
+        os = new PrintStream(socket.getOutputStream());
+      } catch (UnknownHostException e) {
+          System.err.println("Don't know about host.");
       } catch (IOException e) {
         System.err.println("Couldn't get I/O for the connection to host.");
       }
 
       String temp = is.nextLine();
       if (temp.startsWith("PLAYERID")){
-        globals.playerID = Character.getNumericValue(temp.charAt(9));
-        System.out.println("My ID: " + globals.playerID);
+        ClientGlobals.playerID = Character.getNumericValue(temp.charAt(9));
+        System.out.println(">> MY ID: " + ClientGlobals.playerID);
       }
       else{
         System.err.println("Couldn't get Player's ID.");
         endGame();
       }
 
-      try {
-      	String response;
-        int enemyLeft, enemyCenter, enemyRight;
-
-      	while (globals.isPlayable) {
-      		response = is.nextLine();
-          // ENEMY x:y:z
-      		if (response.startsWith("ENEMY")) {
-      			enemyLeft = Character.getNumericValue(response.charAt(6));
-      			enemyCenter = Character.getNumericValue(response.charAt(8));
-      			enemyRight = Character.getNumericValue(response.charAt(10));
-      			System.out.println(">>>> " + enemyLeft + ":" + enemyCenter + ":" + enemyRight);
-      			new Enemy(enemyLeft, enemyCenter, enemyRight);
-      		}
-      		try {
-      			Thread.sleep(SPAWN_TIME);
-     			} catch (InterruptedException e) {}
-      	}
-
-      	is.close();
-      	socket.close();
-      } catch (Exception e){
-        System.out.println("Server terminated. Game will be shut down: " + e);
-      }
-      endGame();
-    }
-
-    public void endGame(){
-      System.out.println("Game over.");
-      System.exit(0);
-    }
-
-    public static void main (String[] args) {
-    	Client client = new Client();
-    	new Thread(client).start();
+      Client client = new Client(is,os);
+      new Thread(client).start();
     }
 }
