@@ -6,11 +6,10 @@ List of tasks and ideas for implementation
 - [x] Right and left handed (plays with [A, S, D] and [LEFT, UP, RIGHT] arrow keys)
 - [x] Enemy generation algorithm
 - [ ] Player 2 mechanic [guitar hero] : WIP
-- [ ] Scoring/Missing sounds
+- [ ] Sound Effects: BGM/Score/Miss : WIP
 
 **Ideas**
 - Input Server's IP at Runtime
-- Background music
 - Players input name
 - Best scores in database
 - Standalone client app (for quicker testing adjustments) maybe?
@@ -26,16 +25,3 @@ Player 2 Mechanic [Guitar Hero]:
 		- Score points (?)
 		- Punishment when failed to score a point (To prevent the player from pressing
 		the buttons constantly)
-		- Improve the random algorithm ? Maybe put some presetted enemies' positions (Idea):
-		
-		1.         2.
-		
-		x          x x
-		
-		 x          x
-		 
-		  x        x x
-		  
-		 x          x
-		 
-		x          x x
