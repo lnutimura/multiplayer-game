@@ -1,9 +1,15 @@
-import java.net.*;
 import java.io.*;
+import java.net.*;
+import java.awt.*;
 import java.util.*;
+import javax.swing.*;
+import java.awt.event.*;
+import javax.swing.JOptionPane;
 
 class ServerGlobals{
 	static boolean isPlayable = true;
+	static boolean isSetting = true;
+	static int portValue = 8080;
 }
 
 class Server {
@@ -13,10 +19,15 @@ class Server {
 		Server server = new Server();
 		ServerSocket serverSocket = null;
 
+		new ServerPreferences();
+		while (ServerGlobals.isSetting)
+			try { Thread.sleep(10); }
+			catch (InterruptedException e) {}
+
 		try {
-			serverSocket = new ServerSocket(8080);
+			serverSocket = new ServerSocket(ServerGlobals.portValue);
 		} catch (IOException e) {
-			System.out.println("Could not listen on port 8080: " + e);
+			System.out.println("Could not listen on port " + ServerGlobals.portValue + ", " + e);
 			System.exit(0);
 		}
 
@@ -226,6 +237,47 @@ class Serving extends Thread {
 			e.printStackTrace();
 		} catch (NoSuchElementException e) {
 			System.out.println("Connection closed by client.");
+		}
+	}
+}
+
+class ServerPreferences extends JFrame implements ActionListener {
+	JLabel text = new JLabel("Server Port:");
+	JTextField portText = new JTextField(8);
+	JButton setButton = new JButton("Set");
+
+	ServerPreferences() {
+		JPanel mainPanel = new JPanel();
+		mainPanel.setLayout(new FlowLayout());
+
+		mainPanel.add(text);
+		mainPanel.add(portText);
+		mainPanel.add(setButton);
+
+		setButton.addActionListener(this);
+
+		add(mainPanel);
+
+		pack();
+
+		setVisible(true);
+		setLocationRelativeTo(null);
+		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+	}
+
+	public void actionPerformed (ActionEvent e) {
+		if(portText.getText().equals("")) {
+			JOptionPane.showMessageDialog(this, "You must fill both fields!", "Error", JOptionPane.ERROR_MESSAGE);
+		} else {
+			try {
+				ServerGlobals.portValue = Integer.parseInt(portText.getText());
+				ServerGlobals.isSetting = false;
+				setVisible(false);
+				System.out.println("Server listening to port: " + ServerGlobals.portValue);
+			} catch (Exception ex) {
+				System.out.println("Invalid Port, " + ex);
+				System.exit(0);
+			}
 		}
 	}
 }

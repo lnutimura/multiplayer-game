@@ -9,7 +9,10 @@ import java.awt.image.*;
 
 class ClientGlobals{
   static boolean isPlayable = true;
+  static boolean isSetting = true;
   static int playerID = 0;
+  static int portValue = 8080;
+  static String ipAddress = "localhost";
 }
 
 class Client extends JFrame implements Runnable {
@@ -28,16 +31,14 @@ class Client extends JFrame implements Runnable {
     Scanner is = null/*new Scanner(System.in)*/;
     PrintStream os = null;
 
-    int serverPort;
-    String serverIP;
+    new UserPreferences();
+    while (ClientGlobals.isSetting)
+      try { Thread.sleep(10); }
+      catch (InterruptedException e) {}
+
+
     try {
-      /* #
-      System.out.println(">> INPUT SERVER IP: ");
-      serverIP = is.next();
-      System.out.println(">> INPUT SERVER PORT: ");
-      serverPort = is.nextInt();
-      */
-      socket = new Socket("localhost", 8080);
+      socket = new Socket(ClientGlobals.ipAddress, ClientGlobals.portValue);
       is = new Scanner(socket.getInputStream());
       os = new PrintStream(socket.getOutputStream());
     } catch (UnknownHostException e) {
@@ -45,6 +46,8 @@ class Client extends JFrame implements Runnable {
     } catch (IOException e) {
       System.err.println("Couldn't get I/O for the connection to host.");
     }
+
+    System.out.println("Client connected to: " + ClientGlobals.ipAddress + "/" + ClientGlobals.portValue);
 
     String temp = is.nextLine();
     if (temp.startsWith("PLAYERID")){
@@ -60,11 +63,11 @@ class Client extends JFrame implements Runnable {
     new Thread(client).start();
   }
 
-  Client(Scanner in, PrintStream out) {
+  Client(Scanner i, PrintStream o) {
     super("Untitled Game");
     
-    this.in = in;
-    this.out = out;
+    this.in = i;
+    this.out = o;
 
     setLocation(400,0);
     add(sc);
@@ -335,6 +338,51 @@ class Client extends JFrame implements Runnable {
           try {Thread.sleep(GameGlobals.SPAWN_TIME);}
           catch (InterruptedException e) {}
         }
+      }
+    }
+  }
+}
+
+class UserPreferences extends JFrame implements ActionListener {
+  JLabel text1 = new JLabel("Server Address:");
+  JLabel text2 = new JLabel("Server Port:");
+  JTextField ipText = new JTextField(15);
+  JTextField portText = new JTextField(8);
+  JButton setButton = new JButton("Set");
+
+  UserPreferences() {
+    JPanel mainPanel = new JPanel();
+    mainPanel.setLayout(new FlowLayout());
+
+    mainPanel.add(text1);
+    mainPanel.add(ipText);
+    mainPanel.add(text2);
+    mainPanel.add(portText);
+    mainPanel.add(setButton);
+
+    setButton.addActionListener(this);
+
+    add(mainPanel);
+
+    pack();
+
+    setVisible(true);
+    setLocationRelativeTo(null);
+    setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+  }
+
+  public void actionPerformed (ActionEvent e) {
+    if(portText.getText().equals("")) {
+      JOptionPane.showMessageDialog(this, "You must fill both fields!", "Error", JOptionPane.ERROR_MESSAGE);
+    } else {
+      try {
+        ClientGlobals.ipAddress = ipText.getText();
+        ClientGlobals.portValue = Integer.parseInt(portText.getText());
+        ClientGlobals.isSetting = false;
+        setVisible(false);
+      } catch (Exception ex) {
+        System.out.println("Invalid Port, " + ex);
+        System.exit(0);
       }
     }
   }
