@@ -244,7 +244,7 @@ class Serving extends Thread {
 									}
 									break;
 								case 'D':
-									if (Character.getNumericValue(newShape) == Server.hitZone.enemy[GameGlobals.LEFT]) {
+									if (Character.getNumericValue(newShape) == Server.hitZone.enemy[GameGlobals.RIGHT]) {
 										thisOS.println("SCORED " + GameGlobals.RIGHT);
 										otherOS.println("SCORED " + GameGlobals.RIGHT);
 									}
