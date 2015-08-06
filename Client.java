@@ -10,7 +10,9 @@ import java.awt.image.*;
 class ClientGlobals{
   static boolean isPlayable = true;
   static boolean isSetting = true;
+  static boolean hasScored = false;
   static int playerID = 0;
+  static int currentLine;
   static int portValue = 8080;
   static String ipAddress = "localhost";
 }
@@ -181,6 +183,12 @@ class Client extends JFrame implements Runnable {
           newShape = Character.getNumericValue(response.charAt(7));
           changeForm(position,newShape);
         }
+        // SCORED x -- x is the line where the player scored a point
+        else if (response.startsWith("SCORED")) {
+          ClientGlobals.currentLine = Character.getNumericValue(response.charAt(7));
+          ClientGlobals.hasScored = true;
+          //System.out.println("Received.");
+        }
       }
 
     } catch (Exception e){
@@ -300,6 +308,13 @@ class Client extends JFrame implements Runnable {
         try {
           Thread.sleep(GameGlobals.STEP_FREQ);
         } catch (InterruptedException e) {}
+
+        if (ClientGlobals.hasScored && enemyY > (GameGlobals.HITZONE_UPPER_BOUND) && enemyY < (GameGlobals.HITZONE_LOWER_BOUND)) {
+           enemy[ClientGlobals.currentLine] = null;
+        }
+        else if (ClientGlobals.hasScored && enemyY > (GameGlobals.HITZONE_LOWER_BOUND)) {
+           ClientGlobals.hasScored = false;
+        }
 
         enemyY += GameGlobals.STEP;
 

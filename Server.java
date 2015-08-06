@@ -13,7 +13,7 @@ class ServerGlobals{
 }
 
 class Server {
-	Enemy hitZone = null;
+	static Enemy hitZone = null;
 
 	public static void main (String[] args) {
 		Server server = new Server();
@@ -102,11 +102,12 @@ class Server {
 				
 				if (hitZone == null && enemyY > (GameGlobals.HITZONE_UPPER_BOUND) && enemyY < (GameGlobals.HITZONE_LOWER_BOUND)) {
 					hitZone = this;
-					System.out.println("ENEMY IN HITZONE: " + enemy[GameGlobals.LEFT] + ":" + enemy[GameGlobals.CENTER] + ":" + enemy[GameGlobals.RIGHT]);
+					//System.out.println("ENEMY IN HITZONE: " + enemy[GameGlobals.LEFT] + ":" + enemy[GameGlobals.CENTER] + ":" + enemy[GameGlobals.RIGHT]);
 				}
 				else if (!left && enemyY > (GameGlobals.HITZONE_LOWER_BOUND)) {
 					hitZone = null;
 					left = true;
+					//System.out.println("NO MORE IN HITZONE :-)");
 				}
 			}
 		}
@@ -213,16 +214,43 @@ class Serving extends Thread {
 			String clientStr;
 			Character keyPressed, newShape;
 
-			while(ServerGlobals.isPlayable){
+			while(ServerGlobals.isPlayable) {
 				clientStr = thisIS.nextLine();
 				if (clientStr.startsWith("KEYPRESS ")){
 					keyPressed = clientStr.charAt(9);
-					if (playerID == 1){
-						newShape = clientStr.charAt(11);
+					newShape = clientStr.charAt(11);
+					if (playerID == 1) {
 						otherOS.println("FORM "+keyPressed+":"+newShape);
 					}
 					else{
 						//HANDLE GUITAR HERO PORTION
+						/*
+							ID - 2
+							thisOS - clientsocket2
+							otherOS - clientsocket1
+						*/
+						if(Server.hitZone != null) {
+							switch (keyPressed) {
+								case 'A':
+									if (Character.getNumericValue(newShape) == Server.hitZone.enemy[GameGlobals.LEFT]) {
+										thisOS.println("SCORED " + GameGlobals.LEFT);
+										otherOS.println("SCORED " + GameGlobals.LEFT);
+									}
+									break;
+								case 'S':
+									if (Character.getNumericValue(newShape) == Server.hitZone.enemy[GameGlobals.CENTER]) {
+										thisOS.println("SCORED " + GameGlobals.CENTER);
+										otherOS.println("SCORED " + GameGlobals.CENTER);
+									}
+									break;
+								case 'D':
+									if (Character.getNumericValue(newShape) == Server.hitZone.enemy[GameGlobals.LEFT]) {
+										thisOS.println("SCORED " + GameGlobals.RIGHT);
+										otherOS.println("SCORED " + GameGlobals.RIGHT);
+									}
+									break;
+							}
+						}
 					}
 				}
 			}
