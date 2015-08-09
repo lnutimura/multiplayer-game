@@ -5,14 +5,13 @@ List of tasks and ideas for implementation
 - [x] Client/Server distinction
 - [x] Right and left handed (plays with [A, S, D] and [LEFT, UP, RIGHT] arrow keys)
 - [x] Enemy generation algorithm
+- [x] Score
 - [ ] Player 2 mechanic [guitar hero] : WIP
 - [ ] Sound Effects: BGM/Score/Miss : WIP
 
 **Ideas**
-- Input Server's IP at Runtime
 - Players input name
 - Best scores in database
-- Standalone client app (for quicker testing adjustments) maybe?
 
 **WORK IN PROGRESS**
 
