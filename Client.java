@@ -34,11 +34,11 @@ class Client extends JFrame implements Runnable {
     Scanner is = null;
     PrintStream os = null;
 
-    new UserPreferences();
+    /*new UserPreferences();
     while (ClientGlobals.isSetting)
       try { Thread.sleep(10); }
       catch (InterruptedException e) {}
-
+*/
 
     try {
       socket = new Socket(ClientGlobals.ipAddress, ClientGlobals.portValue);
@@ -73,6 +73,7 @@ class Client extends JFrame implements Runnable {
     this.out = o;
 
     setLocation(400,0);
+
     add(sc);
     addKeyListener(new KeyAdapter() {
       public void keyPressed(KeyEvent e) {
@@ -135,6 +136,7 @@ class Client extends JFrame implements Runnable {
     setDefaultCloseOperation(EXIT_ON_CLOSE);
     pack();
     setVisible(true);
+    
   }
 
   public void changeForm(Character position, int newShape){
@@ -198,58 +200,55 @@ class Client extends JFrame implements Runnable {
   } 
 
   class Images {
-  	public Image graphic;
-  	public int posX, posY, sizeX, sizeY;
-  	Images (Image graphic, int posX, int posY, int sizeX, int sizeY) {
-  		this.graphic = graphic;
-  		this.posX = posX;
-  		this.posY = posY;
-  		this.sizeX = sizeX;
-  		this.sizeY = sizeY;
-  	}
+    public Image graphic;
+    public int posX, posY, sizeX, sizeY;
+    Images (Image graphic, int posX, int posY, int sizeX, int sizeY) {
+      this.graphic = graphic;
+      this.posX = posX;
+      this.posY = posY;
+      this.sizeX = sizeX;
+      this.sizeY = sizeY;
+    }
   }
 
   class Scene extends JPanel {
-  	Image background;
+    Image background;
+    Scene() {
+      try {
+        background = ImageIO.read(GameGlobals.BG_IMG);
+        player[GameGlobals.LEFT][GameGlobals.CIRCLE] = ImageIO.read(GameGlobals.BCIRC_IMG);
+        player[GameGlobals.LEFT][GameGlobals.TRIANGLE] = ImageIO.read(GameGlobals.BTRI_IMG);
+        player[GameGlobals.LEFT][GameGlobals.SQUARE] = ImageIO.read(GameGlobals.BSQU_IMG);
 
-  	Scene() {
-  		try {
-  			background = ImageIO.read(GameGlobals.BG_IMG);
-  			player[GameGlobals.LEFT][GameGlobals.CIRCLE] = ImageIO.read(GameGlobals.BCIRC_IMG);
-  			player[GameGlobals.LEFT][GameGlobals.TRIANGLE] = ImageIO.read(GameGlobals.BTRI_IMG);
-  			player[GameGlobals.LEFT][GameGlobals.SQUARE] = ImageIO.read(GameGlobals.BSQU_IMG);
+        player[GameGlobals.CENTER][GameGlobals.CIRCLE] = ImageIO.read(GameGlobals.BCIRC_IMG);
+        player[GameGlobals.CENTER][GameGlobals.TRIANGLE] = ImageIO.read(GameGlobals.BTRI_IMG);
+        player[GameGlobals.CENTER][GameGlobals.SQUARE] = ImageIO.read(GameGlobals.BSQU_IMG);
 
-   			player[GameGlobals.CENTER][GameGlobals.CIRCLE] = ImageIO.read(GameGlobals.BCIRC_IMG);
-  			player[GameGlobals.CENTER][GameGlobals.TRIANGLE] = ImageIO.read(GameGlobals.BTRI_IMG);
-  			player[GameGlobals.CENTER][GameGlobals.SQUARE] = ImageIO.read(GameGlobals.BSQU_IMG);
-
-   			player[GameGlobals.RIGHT][GameGlobals.CIRCLE] = ImageIO.read(GameGlobals.BCIRC_IMG);
-  			player[GameGlobals.RIGHT][GameGlobals.TRIANGLE] = ImageIO.read(GameGlobals.BTRI_IMG);
-  			player[GameGlobals.RIGHT][GameGlobals.SQUARE] = ImageIO.read(GameGlobals.BSQU_IMG);
-  		} catch (IOException e) {
-  			System.err.println("Could not load images.");
-  		}
-
-  		currentForm[GameGlobals.LEFT] = GameGlobals.CIRCLE;
-  		currentForm[GameGlobals.CENTER] = GameGlobals.TRIANGLE;
-  		currentForm[GameGlobals.RIGHT] = GameGlobals.SQUARE;
-
-  		arrayImgs.add(new Images(background, 0, 0, GameGlobals.SCREEN_W, GameGlobals.SCREEN_H));
-  		arrayImgs.add(new Images(player[GameGlobals.LEFT][currentForm[GameGlobals.LEFT]], GameGlobals.S_XL, GameGlobals.S_Y, GameGlobals.S_SIZE_XY, GameGlobals.S_SIZE_XY));
-  		arrayImgs.add(new Images(player[GameGlobals.CENTER][currentForm[GameGlobals.CENTER]], GameGlobals.S_XC, GameGlobals.S_Y, GameGlobals.S_SIZE_XY, GameGlobals.S_SIZE_XY));
-  		arrayImgs.add(new Images(player[GameGlobals.RIGHT][currentForm[GameGlobals.RIGHT]], GameGlobals.S_XR, GameGlobals.S_Y, GameGlobals.S_SIZE_XY, GameGlobals.S_SIZE_XY));
-      
-      //SCORE IMAGES
-      for (int i = 0; i < GameGlobals.SCORE_STRING_SIZE; i++) {
-        arrayImgs.add(new Images(playerScore.scoreImgArray[i], GameGlobals.SCORE_X + i*GameGlobals.SCORE_RES_X, GameGlobals.SCORE_Y, GameGlobals.SCORE_RES_X, GameGlobals.SCORE_RES_Y));
+        player[GameGlobals.RIGHT][GameGlobals.CIRCLE] = ImageIO.read(GameGlobals.BCIRC_IMG);
+        player[GameGlobals.RIGHT][GameGlobals.TRIANGLE] = ImageIO.read(GameGlobals.BTRI_IMG);
+        player[GameGlobals.RIGHT][GameGlobals.SQUARE] = ImageIO.read(GameGlobals.BSQU_IMG);
+      } catch (IOException e) {
+        System.err.println("Could not load images.");
       }
-  	}
 
-  	public void paint (Graphics g) {
-      //super.paint(g);
-  		synchronized (sync) {
-  			for (Images i : arrayImgs)
-  				g.drawImage(i.graphic, i.posX, i.posY, i.sizeX, i.sizeY, this);
+      currentForm[GameGlobals.LEFT] = GameGlobals.CIRCLE;
+      currentForm[GameGlobals.CENTER] = GameGlobals.TRIANGLE;
+      currentForm[GameGlobals.RIGHT] = GameGlobals.SQUARE;
+
+      arrayImgs.add(new Images(background, 0, 0, GameGlobals.SCREEN_W, GameGlobals.SCREEN_H));
+      arrayImgs.add(new Images(player[GameGlobals.LEFT][currentForm[GameGlobals.LEFT]], GameGlobals.S_XL, GameGlobals.S_Y, GameGlobals.S_SIZE_XY, GameGlobals.S_SIZE_XY));
+      arrayImgs.add(new Images(player[GameGlobals.CENTER][currentForm[GameGlobals.CENTER]], GameGlobals.S_XC, GameGlobals.S_Y, GameGlobals.S_SIZE_XY, GameGlobals.S_SIZE_XY));
+      arrayImgs.add(new Images(player[GameGlobals.RIGHT][currentForm[GameGlobals.RIGHT]], GameGlobals.S_XR, GameGlobals.S_Y, GameGlobals.S_SIZE_XY, GameGlobals.S_SIZE_XY));
+    }
+
+    public void paint (Graphics g) {
+      synchronized (sync) {
+        for (Images i : arrayImgs){
+          g.drawImage(i.graphic, i.posX, i.posY, i.sizeX, i.sizeY, this);
+        }
+        g.setColor(Color.GRAY);
+        g.setFont(new Font("OCR A Extended", Font.PLAIN, 36));
+        g.drawString(playerScore.scoreString.toString(), GameGlobals.SCORE_X, GameGlobals.SCORE_Y);
   		}
   	}
 
@@ -268,50 +267,25 @@ class Client extends JFrame implements Runnable {
       for (int i = 0; i < GameGlobals.SCORE_STRING_SIZE; i++) {
         scoreString.append("0");
       }
-      updateScoreImg();
+      updateScoreString();
     }
 
-    public void updateScoreImg(){
+    public void updateScoreString(){
       scoreString.replace(0, scoreString.length(), String.format("%0"+GameGlobals.SCORE_STRING_SIZE+"d",actualScore));
-      try{
-        synchronized (sync){
-          for (int i = 0; i < scoreImgArray.length; i++) {
-            scoreImgArray[i] = ImageIO.read(getRespectiveImage(scoreString.charAt(i)));
-            arrayImgs.set(i+4, new Images(playerScore.scoreImgArray[i], GameGlobals.SCORE_X + i*GameGlobals.SCORE_RES_X, GameGlobals.SCORE_Y, GameGlobals.SCORE_RES_X, GameGlobals.SCORE_RES_Y));
-          }
-        }
-      } catch(Exception e){};
-      System.out.println("SCORESTRING: "+scoreString);
-    }
-
-    File getRespectiveImage(char number){
-      switch(number){
-        case '0': return GameGlobals.N0_IMG;
-        case '1': return GameGlobals.N1_IMG;
-        case '2': return GameGlobals.N2_IMG;
-        case '3': return GameGlobals.N3_IMG;
-        case '4': return GameGlobals.N4_IMG;
-        case '5': return GameGlobals.N5_IMG;
-        case '6': return GameGlobals.N6_IMG;
-        case '7': return GameGlobals.N7_IMG;
-        case '8': return GameGlobals.N8_IMG;
-        case '9': return GameGlobals.N9_IMG;
-        default: return null;
-      }
     }
 
     public void winPoints(int pointsWon){
       actualScore += pointsWon;
       if (actualScore > 9999)
         actualScore = 9999;
-      updateScoreImg();
+      updateScoreString();
     }
 
     public void losePoints(int pointsLost){
       actualScore -= pointsLost;
       if (actualScore < 0)
         actualScore = 0;
-      updateScoreImg();
+      updateScoreString();
     }
   }
 
@@ -323,11 +297,11 @@ class Client extends JFrame implements Runnable {
     Enemy(int left, int center, int right) {
       try {
         switch (left) {
-        case GameGlobals.TRIANGLE: enemy[GameGlobals.LEFT] = ImageIO.read(new File("images/tri.png"));
+        case GameGlobals.TRIANGLE: enemy[GameGlobals.LEFT] = ImageIO.read(GameGlobals.TRI_IMG);
           break;
-        case GameGlobals.CIRCLE: enemy[GameGlobals.LEFT] = ImageIO.read(new File("images/circ.png"));
+        case GameGlobals.CIRCLE: enemy[GameGlobals.LEFT] = ImageIO.read(GameGlobals.CIRC_IMG);
           break;
-        case GameGlobals.SQUARE: enemy[GameGlobals.LEFT] = ImageIO.read(new File("images/quad.png"));
+        case GameGlobals.SQUARE: enemy[GameGlobals.LEFT] = ImageIO.read(GameGlobals.SQU_IMG);
           break;
         }
 

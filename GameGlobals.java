@@ -30,14 +30,7 @@ public class GameGlobals{
   static final File BTRI_IMG = new File("images/bTri.png");
   static final File BSQU_IMG = new File("images/bQuad.png");
   static final File BG_IMG = new File("images/fundo.png");
-  static final File N0_IMG = new File("images/n0.png");
-  static final File N1_IMG = new File("images/n1.png");
-  static final File N2_IMG = new File("images/n2.png");
-  static final File N3_IMG = new File("images/n3.png");
-  static final File N4_IMG = new File("images/n4.png");
-  static final File N5_IMG = new File("images/n5.png");
-  static final File N6_IMG = new File("images/n6.png");
-  static final File N7_IMG = new File("images/n7.png");
-  static final File N8_IMG = new File("images/n8.png");
-  static final File N9_IMG = new File("images/n9.png");
+  static final File CIRC_IMG = new File("images/circ.png");
+  static final File TRI_IMG = new File("images/tri.png");
+  static final File SQU_IMG = new File("images/quad.png");
 }

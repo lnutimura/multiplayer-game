@@ -17,7 +17,7 @@ public class BGM {
 	
 	public BGM(){
 		try{
-			bgMusic = new Media("file://"+path.getFile()+"audio/easy-electro.wav");
+			bgMusic = new Media("file://"+path.getFile()+"audio/music1.mp3");
 			bgPlayer = new MediaPlayer(bgMusic);
 			bgPlayer.setCycleCount(MediaPlayer.INDEFINITE);
 			score = new Media("file://"+path.getFile()+"audio/score.wav");
