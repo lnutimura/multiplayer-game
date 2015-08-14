@@ -6,6 +6,8 @@ import javax.swing.*;
 import javax.imageio.*;
 import java.awt.event.*;
 import java.awt.image.*;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 class ClientGlobals{
   static boolean isPlayable = true;
@@ -15,6 +17,7 @@ class ClientGlobals{
   static int currentLine;
   static int portValue = 8080;
   static String ipAddress = "localhost";
+  static Client.Enemy hitZone = null;
 }
 
 class Client extends JFrame implements Runnable {
@@ -23,11 +26,12 @@ class Client extends JFrame implements Runnable {
   int currentForm[] = new int[3];
   Image player[][] = new Image[3][3];
   Object sync = new Object();
-  Scanner in;
-  PrintStream out;
+  Scanner serverIS;
+  PrintStream serverOS;
   static EnemyManager eMgr;
   Score playerScore = new Score();
   Scene sc = new Scene();
+  BGM bgm = new BGM();
 
   public static void main (String[] args) {
     Socket socket = null;
@@ -38,7 +42,7 @@ class Client extends JFrame implements Runnable {
     while (ClientGlobals.isSetting)
       try { Thread.sleep(10); }
       catch (InterruptedException e) {}
-*/
+    */
 
     try {
       socket = new Socket(ClientGlobals.ipAddress, ClientGlobals.portValue);
@@ -69,65 +73,36 @@ class Client extends JFrame implements Runnable {
   Client(Scanner i, PrintStream o) {
     super("Untitled Game");
     
-    this.in = i;
-    this.out = o;
+    this.serverIS = i;
+    this.serverOS = o;
 
     setLocation(400,0);
 
     add(sc);
     addKeyListener(new KeyAdapter() {
       public void keyPressed(KeyEvent e) {
+        
         switch(e.getKeyCode()) {
         case KeyEvent.VK_LEFT:
         case KeyEvent.VK_A:
+          serverOS.println("KEYPRESS A"+":"+currentForm[GameGlobals.LEFT]);
           if (ClientGlobals.playerID == 1){
-            switch(currentForm[GameGlobals.LEFT]){
-            case GameGlobals.CIRCLE:
-              changeForm('A',GameGlobals.TRIANGLE);
-              break;
-            case GameGlobals.TRIANGLE:
-              changeForm('A',GameGlobals.SQUARE);
-              break;
-            case GameGlobals.SQUARE:
-              changeForm('A',GameGlobals.CIRCLE);
-              break;
-            }
+            changeForm('A',currentForm[GameGlobals.LEFT]);
           }
-          out.println("KEYPRESS A"+":"+currentForm[GameGlobals.LEFT]);
           break;
-        case KeyEvent.VK_UP:
+        case KeyEvent.VK_DOWN:
         case KeyEvent.VK_S:
+          serverOS.println("KEYPRESS S"+":"+currentForm[GameGlobals.CENTER]);
           if (ClientGlobals.playerID == 1){
-            switch(currentForm[GameGlobals.CENTER]){
-            case GameGlobals.CIRCLE:
-              changeForm('S',GameGlobals.TRIANGLE);
-              break;
-            case GameGlobals.TRIANGLE:
-              changeForm('S',GameGlobals.SQUARE);
-              break;
-            case GameGlobals.SQUARE:
-              changeForm('S',GameGlobals.CIRCLE);
-              break;
-            }
+            changeForm('S',currentForm[GameGlobals.CENTER]);
           }
-          out.println("KEYPRESS S"+":"+currentForm[GameGlobals.CENTER]);
           break;
         case KeyEvent.VK_RIGHT:
         case KeyEvent.VK_D:
+          serverOS.println("KEYPRESS D"+":"+currentForm[GameGlobals.RIGHT]);
           if (ClientGlobals.playerID == 1){
-            switch(currentForm[GameGlobals.RIGHT]){
-            case GameGlobals.CIRCLE:
-              changeForm('D',GameGlobals.TRIANGLE);
-              break;
-            case GameGlobals.TRIANGLE:
-              changeForm('D',GameGlobals.SQUARE);
-              break;
-            case GameGlobals.SQUARE:
-              changeForm('D',GameGlobals.CIRCLE);
-              break;
-            }
+            changeForm('D',currentForm[GameGlobals.RIGHT]);
           }
-          out.println("KEYPRESS D"+":"+currentForm[GameGlobals.RIGHT]);
           break;
         }
       }
@@ -135,24 +110,38 @@ class Client extends JFrame implements Runnable {
 
     setDefaultCloseOperation(EXIT_ON_CLOSE);
     pack();
-    setVisible(true);
-    
+    setVisible(true); 
+    bgm.playTitleMusic();
   }
 
-  public void changeForm(Character position, int newShape){
+  public void changeForm(Character position, int actualShape){
+    int newShape = -1;
+    switch(actualShape){
+    case GameGlobals.TRIANGLE:
+      newShape = GameGlobals.SQUARE;
+      break;
+    case GameGlobals.SQUARE:
+      newShape = GameGlobals.CIRCLE;
+      break;
+    case GameGlobals.CIRCLE:
+      newShape = GameGlobals.TRIANGLE;
+      break;
+    default:
+      System.err.println("Error: Unindentified value in variable 'actualShape'.");
+    }
     switch (position){
-      case 'A':
-        currentForm[GameGlobals.LEFT] = newShape;
-        arrayImgs.set(1,new Images(player[GameGlobals.LEFT][currentForm[GameGlobals.LEFT]],GameGlobals.S_XL,GameGlobals.S_Y,GameGlobals.S_SIZE_XY,GameGlobals.S_SIZE_XY));
-        break;
-      case 'S':
-        currentForm[GameGlobals.CENTER] = newShape;
-        arrayImgs.set(2,new Images(player[GameGlobals.CENTER][currentForm[GameGlobals.CENTER]],GameGlobals.S_XC,GameGlobals.S_Y,GameGlobals.S_SIZE_XY,GameGlobals.S_SIZE_XY));
-        break;
-      case 'D':
-        currentForm[GameGlobals.RIGHT] = newShape;
-        arrayImgs.set(3,new Images(player[GameGlobals.RIGHT][currentForm[GameGlobals.RIGHT]],GameGlobals.S_XR,GameGlobals.S_Y,GameGlobals.S_SIZE_XY,GameGlobals.S_SIZE_XY));
-        break;
+    case 'A':
+      currentForm[GameGlobals.LEFT] = newShape;
+      arrayImgs.set(1,new Images(player[GameGlobals.LEFT][currentForm[GameGlobals.LEFT]],GameGlobals.S_XL,GameGlobals.S_Y,GameGlobals.S_SIZE_XY,GameGlobals.S_SIZE_XY));
+      break;
+    case 'S':
+      currentForm[GameGlobals.CENTER] = newShape;
+      arrayImgs.set(2,new Images(player[GameGlobals.CENTER][currentForm[GameGlobals.CENTER]],GameGlobals.S_XC,GameGlobals.S_Y,GameGlobals.S_SIZE_XY,GameGlobals.S_SIZE_XY));
+      break;
+    case 'D':
+      currentForm[GameGlobals.RIGHT] = newShape;
+      arrayImgs.set(3,new Images(player[GameGlobals.RIGHT][currentForm[GameGlobals.RIGHT]],GameGlobals.S_XR,GameGlobals.S_Y,GameGlobals.S_SIZE_XY,GameGlobals.S_SIZE_XY));
+      break;
     }
     sc.repaint();
   }
@@ -162,11 +151,13 @@ class Client extends JFrame implements Runnable {
       String response;
       Character position;
       int newShape;
+      Matcher m;
+
       eMgr = new EnemyManager();
       eMgr.start();
 
       while (ClientGlobals.isPlayable) {
-        response = in.nextLine();
+        response = serverIS.nextLine();
         // ENEMY x:y:z
         if (response.startsWith("ENEMY")) {
           eMgr.queueEnemy(response);
@@ -175,22 +166,26 @@ class Client extends JFrame implements Runnable {
         else if (response.startsWith("FORM")) {
           position = response.charAt(5);
           newShape = Character.getNumericValue(response.charAt(7));
-          changeForm(position,newShape);
+          changeForm(position, newShape);
         }
-        // SCORED x -- x is the line where the player scored a point
+        // SCORED x >> x is position hit
         else if (response.startsWith("SCORED")) {
-          ClientGlobals.currentLine = Character.getNumericValue(response.charAt(7));
-          ClientGlobals.hasScored = true;
-          //System.out.println("Received.");
+          m = Pattern.compile("\\w+\\s(\\d)").matcher(response);
+          m.find();
+          ClientGlobals.hitZone.enemyImg[Integer.parseInt(m.group(1))] = null;
           playerScore.winPoints(10);
+        }
+        else if (response.startsWith("LOST")) {
+          playerScore.losePoints(20);
         }
       }
 
     } catch (Exception e){
-      System.out.println("Server terminated. Game will be shut down: " + e);
+      //System.out.println("Server terminated. Game will be shut down: " + e);
+      e.printStackTrace();
     }
-    in.close();
-    out.close();
+    serverIS.close();
+    serverOS.close();
     endGame();
   }
 
@@ -246,7 +241,7 @@ class Client extends JFrame implements Runnable {
         for (Images i : arrayImgs){
           g.drawImage(i.graphic, i.posX, i.posY, i.sizeX, i.sizeY, this);
         }
-        g.setColor(Color.GRAY);
+        g.setColor(playerScore.stringColor);
         g.setFont(new Font("OCR A Extended", Font.PLAIN, 36));
         g.drawString(playerScore.scoreString.toString(), GameGlobals.SCORE_X, GameGlobals.SCORE_Y);
   		}
@@ -261,6 +256,7 @@ class Client extends JFrame implements Runnable {
     int actualScore = 0;
     StringBuffer scoreString = null;
     Image[] scoreImgArray = new Image[GameGlobals.SCORE_STRING_SIZE];
+    Color stringColor = Color.GRAY;
 
     Score(){
       scoreString = new StringBuffer("");
@@ -275,6 +271,7 @@ class Client extends JFrame implements Runnable {
     }
 
     public void winPoints(int pointsWon){
+      stringColor = Color.CYAN;
       actualScore += pointsWon;
       if (actualScore > 9999)
         actualScore = 9999;
@@ -282,6 +279,7 @@ class Client extends JFrame implements Runnable {
     }
 
     public void losePoints(int pointsLost){
+      stringColor = Color.RED;
       actualScore -= pointsLost;
       if (actualScore < 0)
         actualScore = 0;
@@ -290,47 +288,53 @@ class Client extends JFrame implements Runnable {
   }
 
   class Enemy implements Runnable {
-    Image enemy[] = new Image[3];
+    Image enemyImg[] = new Image[3];
+    int[] enemy = new int[3];
     int myIndex = 0;
     int enemyY = 0;
+    boolean alreadyIn = false;
     
     Enemy(int left, int center, int right) {
       try {
         switch (left) {
-        case GameGlobals.TRIANGLE: enemy[GameGlobals.LEFT] = ImageIO.read(GameGlobals.TRI_IMG);
+        case GameGlobals.TRIANGLE: enemyImg[GameGlobals.LEFT] = ImageIO.read(GameGlobals.TRI_IMG);
           break;
-        case GameGlobals.CIRCLE: enemy[GameGlobals.LEFT] = ImageIO.read(GameGlobals.CIRC_IMG);
+        case GameGlobals.CIRCLE: enemyImg[GameGlobals.LEFT] = ImageIO.read(GameGlobals.CIRC_IMG);
           break;
-        case GameGlobals.SQUARE: enemy[GameGlobals.LEFT] = ImageIO.read(GameGlobals.SQU_IMG);
+        case GameGlobals.SQUARE: enemyImg[GameGlobals.LEFT] = ImageIO.read(GameGlobals.SQU_IMG);
           break;
         }
 
         switch (center) {
-        case GameGlobals.TRIANGLE: enemy[GameGlobals.CENTER] = ImageIO.read(new File("images/tri.png"));
+        case GameGlobals.TRIANGLE: enemyImg[GameGlobals.CENTER] = ImageIO.read(GameGlobals.TRI_IMG);
           break;
-        case GameGlobals.CIRCLE: enemy[GameGlobals.CENTER] = ImageIO.read(new File("images/circ.png"));
+        case GameGlobals.CIRCLE: enemyImg[GameGlobals.CENTER] = ImageIO.read(GameGlobals.CIRC_IMG);
           break;
-        case GameGlobals.SQUARE: enemy[GameGlobals.CENTER] = ImageIO.read(new File("images/quad.png"));
+        case GameGlobals.SQUARE: enemyImg[GameGlobals.CENTER] = ImageIO.read(GameGlobals.SQU_IMG);
           break;
         }
 
         switch (right) {
-        case GameGlobals.TRIANGLE: enemy[GameGlobals.RIGHT] = ImageIO.read(new File("images/tri.png"));
+        case GameGlobals.TRIANGLE: enemyImg[GameGlobals.RIGHT] = ImageIO.read(GameGlobals.TRI_IMG);
           break;
-        case GameGlobals.CIRCLE: enemy[GameGlobals.RIGHT] = ImageIO.read(new File("images/circ.png"));
+        case GameGlobals.CIRCLE: enemyImg[GameGlobals.RIGHT] = ImageIO.read(GameGlobals.CIRC_IMG);
           break;
-        case GameGlobals.SQUARE: enemy[GameGlobals.RIGHT] = ImageIO.read(new File("images/quad.png"));
+        case GameGlobals.SQUARE: enemyImg[GameGlobals.RIGHT] = ImageIO.read(GameGlobals.SQU_IMG);
           break;
         }
       } catch (IOException e) {
         System.err.println("Could not load images.");
       }
 
+      enemy[GameGlobals.LEFT] = left;
+      enemy[GameGlobals.CENTER] = center;
+      enemy[GameGlobals.RIGHT] = right;
+
       synchronized (sync) {
         myIndex = arrayImgs.size();
-        arrayImgs.add(new Images(enemy[GameGlobals.LEFT], GameGlobals.S_XL, enemyY, GameGlobals.S_SIZE_XY, GameGlobals.S_SIZE_XY));
-        arrayImgs.add(new Images(enemy[GameGlobals.CENTER], GameGlobals.S_XC, enemyY, GameGlobals.S_SIZE_XY, GameGlobals.S_SIZE_XY));
-        arrayImgs.add(new Images(enemy[GameGlobals.RIGHT], GameGlobals.S_XR, enemyY, GameGlobals.S_SIZE_XY, GameGlobals.S_SIZE_XY));
+        arrayImgs.add(new Images(enemyImg[GameGlobals.LEFT], GameGlobals.S_XL, enemyY, GameGlobals.S_SIZE_XY, GameGlobals.S_SIZE_XY));
+        arrayImgs.add(new Images(enemyImg[GameGlobals.CENTER], GameGlobals.S_XC, enemyY, GameGlobals.S_SIZE_XY, GameGlobals.S_SIZE_XY));
+        arrayImgs.add(new Images(enemyImg[GameGlobals.RIGHT], GameGlobals.S_XR, enemyY, GameGlobals.S_SIZE_XY, GameGlobals.S_SIZE_XY));
       }
     }
 
@@ -340,38 +344,47 @@ class Client extends JFrame implements Runnable {
           Thread.sleep(GameGlobals.STEP_FREQ);
         } catch (InterruptedException e) {}
 
-        if (ClientGlobals.hasScored && enemyY > (GameGlobals.HITZONE_UPPER_BOUND) && enemyY < (GameGlobals.HITZONE_LOWER_BOUND)) {
-           enemy[ClientGlobals.currentLine] = null;
+        if (!alreadyIn && enemyY > (GameGlobals.HITZONE_UPPER_BOUND) && enemyY < (GameGlobals.HITZONE_LOWER_BOUND)) {
+          ClientGlobals.hitZone = this;
+          if (ClientGlobals.playerID == 2){
+            //HITZONE x:y:z:i >> x, y & z are the symbols, i is index
+            serverOS.println("HITZONE " + ClientGlobals.hitZone + ":" + ClientGlobals.hitZone.myIndex);
+          }
+          alreadyIn = true;
         }
-        else if (ClientGlobals.hasScored && enemyY > (GameGlobals.HITZONE_LOWER_BOUND)) {
-           ClientGlobals.hasScored = false;
+        else if (alreadyIn && enemyY > (GameGlobals.HITZONE_LOWER_BOUND)) {
+          serverOS.println("HITZONE 9:9:9:9");
+          alreadyIn = false;
         }
 
         enemyY += GameGlobals.STEP;
 
-        arrayImgs.set(myIndex, new Images(enemy[GameGlobals.LEFT], GameGlobals.S_XL, enemyY, GameGlobals.S_SIZE_XY, GameGlobals.S_SIZE_XY));
-        arrayImgs.set(myIndex+1, new Images(enemy[GameGlobals.CENTER], GameGlobals.S_XC, enemyY, GameGlobals.S_SIZE_XY, GameGlobals.S_SIZE_XY));
-        arrayImgs.set(myIndex+2, new Images(enemy[GameGlobals.RIGHT], GameGlobals.S_XR, enemyY, GameGlobals.S_SIZE_XY, GameGlobals.S_SIZE_XY));
+        arrayImgs.set(myIndex, new Images(enemyImg[GameGlobals.LEFT], GameGlobals.S_XL, enemyY, GameGlobals.S_SIZE_XY, GameGlobals.S_SIZE_XY));
+        arrayImgs.set(myIndex+1, new Images(enemyImg[GameGlobals.CENTER], GameGlobals.S_XC, enemyY, GameGlobals.S_SIZE_XY, GameGlobals.S_SIZE_XY));
+        arrayImgs.set(myIndex+2, new Images(enemyImg[GameGlobals.RIGHT], GameGlobals.S_XR, enemyY, GameGlobals.S_SIZE_XY, GameGlobals.S_SIZE_XY));
 
         sc.repaint();
       }
+    }
+
+    public String toString(){
+      return enemy[GameGlobals.LEFT] + ":" + enemy[GameGlobals.CENTER] + ":" + enemy[GameGlobals.RIGHT];
     }
   }
 
   class EnemyManager extends Thread{      
     Vector<String> enemyVector = new Vector<String>();
     int index = 0;
+    int enemySigns[] = new int[3];
 
     public void queueEnemy(String nextEnemy){
       enemyVector.add(nextEnemy);
     }
 
     private void createEnemy(String nextEnemy){
-      int enemySigns[] = new int[3];
       enemySigns[GameGlobals.LEFT] = Character.getNumericValue(nextEnemy.charAt(6));
       enemySigns[GameGlobals.CENTER] = Character.getNumericValue(nextEnemy.charAt(8));
       enemySigns[GameGlobals.RIGHT] = Character.getNumericValue(nextEnemy.charAt(10));
-      System.out.println(">>>> " + enemySigns[GameGlobals.LEFT] + ":" + enemySigns[GameGlobals.CENTER] + ":" + enemySigns[GameGlobals.RIGHT]);
       new Thread(new Enemy(enemySigns[GameGlobals.LEFT], enemySigns[GameGlobals.CENTER], enemySigns[GameGlobals.RIGHT])).start();
     }
 

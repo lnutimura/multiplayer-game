@@ -5,15 +5,17 @@ import java.util.*;
 import javax.swing.*;
 import java.awt.event.*;
 import javax.swing.JOptionPane;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 class ServerGlobals{
 	static boolean isPlayable = true;
 	static boolean isSetting = true;
 	static int portValue = 8080;
+	static Server.Enemy hitZone = null;
 }
 
 class Server {
-	static Enemy hitZone = null;
 
 	public static void main (String[] args) {
 		Server server = new Server();
@@ -74,11 +76,12 @@ class Server {
 		catch (IOException e) { e.printStackTrace(); }
 	}
 
-	class Enemy implements Runnable {
+	class Enemy {
 		int enemyY = 0;
 		int enemy[] = new int[3];
 		Random r = new Random();
 		boolean left = false;
+		int myIndex = -1;
 
 		Enemy() {
 			enemy[GameGlobals.LEFT] = r.nextInt(4);
@@ -90,26 +93,6 @@ class Server {
 			enemy[GameGlobals.LEFT] = Character.getNumericValue(seq.charAt(GameGlobals.LEFT));
 			enemy[GameGlobals.CENTER] = Character.getNumericValue(seq.charAt(GameGlobals.CENTER));
 			enemy[GameGlobals.RIGHT] = Character.getNumericValue(seq.charAt(GameGlobals.RIGHT));
-		}
-
-		public synchronized void run() {
-			while (enemyY < GameGlobals.SCREEN_H) {
-				try {
-					Thread.sleep(GameGlobals.STEP_FREQ);
-				} catch (InterruptedException e) {}
-
-				enemyY += GameGlobals.STEP;
-				
-				if (hitZone == null && enemyY > (GameGlobals.HITZONE_UPPER_BOUND) && enemyY < (GameGlobals.HITZONE_LOWER_BOUND)) {
-					hitZone = this;
-					//System.out.println("ENEMY IN HITZONE: " + enemy[GameGlobals.LEFT] + ":" + enemy[GameGlobals.CENTER] + ":" + enemy[GameGlobals.RIGHT]);
-				}
-				else if (!left && enemyY > (GameGlobals.HITZONE_LOWER_BOUND)) {
-					hitZone = null;
-					left = true;
-					//System.out.println("NO MORE IN HITZONE :-)");
-				}
-			}
 		}
 
 		public String toString(){
@@ -132,6 +115,7 @@ class Server {
 		EnemySequencer(PrintStream player1, PrintStream player2){
 			this.player1 = player1;
 			this.player2 = player2;
+			ServerGlobals.hitZone = new Enemy();
 		}
 
 		public StringBuilder nextSubSequence(String seq){
@@ -179,8 +163,6 @@ class Server {
 				//SEND TO CLIENTS
 				player1.println("ENEMY " + nextEnemy.charAt(GameGlobals.LEFT) + ":" + nextEnemy.charAt(GameGlobals.CENTER) + ":" + nextEnemy.charAt(GameGlobals.RIGHT));
 				player2.println("ENEMY " + nextEnemy.charAt(GameGlobals.LEFT) + ":" + nextEnemy.charAt(GameGlobals.CENTER) + ":" + nextEnemy.charAt(GameGlobals.RIGHT));
-				//INSTANCIATE ENEMY
-				new Thread(new Enemy(nextEnemy)).start();
 
 				try{ Thread.sleep(GameGlobals.SPAWN_TIME); }
 				catch (InterruptedException ie) {};
@@ -208,47 +190,76 @@ class Serving extends Thread {
 
 	public synchronized void run() {
 		try {
+			thisIS = new Scanner(thisSocket.getInputStream());
 			thisOS = new PrintStream(thisSocket.getOutputStream(), true);
 			otherOS = new PrintStream(otherSocket.getOutputStream(), true);
-			thisIS = new Scanner(thisSocket.getInputStream());
-			String clientStr;
+			String clientStr = "";
 			Character keyPressed, newShape;
+			Matcher m;
 
 			while(ServerGlobals.isPlayable) {
 				clientStr = thisIS.nextLine();
-				if (clientStr.startsWith("KEYPRESS ")){
+				if (clientStr.startsWith("HITZONE")){
+					//HITZONE x:y:z:i >> x, y & z are the symbols, i is index
+					m = Pattern.compile("\\w+\\s(\\d):(\\d):(\\d):(\\d+)").matcher(clientStr);
+					m.find();
+					ServerGlobals.hitZone.enemy[GameGlobals.LEFT] = Integer.parseInt(m.group(1));
+					ServerGlobals.hitZone.enemy[GameGlobals.CENTER] = Integer.parseInt(m.group(2));
+					ServerGlobals.hitZone.enemy[GameGlobals.RIGHT] = Integer.parseInt(m.group(3));
+					ServerGlobals.hitZone.myIndex = Integer.parseInt(m.group(4));
+				}
+				else if (clientStr.startsWith("KEYPRESS ")){
 					keyPressed = clientStr.charAt(9);
 					newShape = clientStr.charAt(11);
 					if (playerID == 1) {
 						otherOS.println("FORM "+keyPressed+":"+newShape);
 					}
 					else{
-						//HANDLE GUITAR HERO PORTION
 						/*
 							ID - 2
 							thisOS - clientsocket2
 							otherOS - clientsocket1
+
+							string sent = SCORED x >> x is symbol hit
 						*/
-						if(Server.hitZone != null) {
+						if(ServerGlobals.hitZone != null) {
 							switch (keyPressed) {
-								case 'A':
-									if (Character.getNumericValue(newShape) == Server.hitZone.enemy[GameGlobals.LEFT]) {
-										thisOS.println("SCORED " + GameGlobals.LEFT);
-										otherOS.println("SCORED " + GameGlobals.LEFT);
-									}
-									break;
-								case 'S':
-									if (Character.getNumericValue(newShape) == Server.hitZone.enemy[GameGlobals.CENTER]) {
-										thisOS.println("SCORED " + GameGlobals.CENTER);
-										otherOS.println("SCORED " + GameGlobals.CENTER);
-									}
-									break;
-								case 'D':
-									if (Character.getNumericValue(newShape) == Server.hitZone.enemy[GameGlobals.RIGHT]) {
-										thisOS.println("SCORED " + GameGlobals.RIGHT);
-										otherOS.println("SCORED " + GameGlobals.RIGHT);
-									}
-									break;
+							case 'A':
+								if (Character.getNumericValue(newShape) == ServerGlobals.hitZone.enemy[GameGlobals.LEFT]) {
+									ServerGlobals.hitZone.enemy[GameGlobals.LEFT] = -1;
+									thisOS.println("SCORED " + GameGlobals.LEFT);
+									otherOS.println("SCORED " + GameGlobals.LEFT);
+								}
+								else{
+									ServerGlobals.hitZone.enemy[GameGlobals.LEFT] = -1;
+									thisOS.println("LOST " + GameGlobals.LEFT);
+									otherOS.println("LOST " + GameGlobals.LEFT);	
+								}
+								break;
+							case 'S':
+								if (Character.getNumericValue(newShape) == ServerGlobals.hitZone.enemy[GameGlobals.CENTER]) {
+									ServerGlobals.hitZone.enemy[GameGlobals.CENTER] = -1;
+									thisOS.println("SCORED " + GameGlobals.CENTER);
+									otherOS.println("SCORED " + GameGlobals.CENTER);
+								}
+								else{
+									ServerGlobals.hitZone.enemy[GameGlobals.CENTER] = -1;
+									thisOS.println("LOST " + GameGlobals.CENTER);
+									otherOS.println("LOST " + GameGlobals.CENTER);	
+								}
+								break;
+							case 'D':
+								if (Character.getNumericValue(newShape) == ServerGlobals.hitZone.enemy[GameGlobals.RIGHT]) {
+									ServerGlobals.hitZone.enemy[GameGlobals.RIGHT] = -1;
+									thisOS.println("SCORED " + GameGlobals.RIGHT);
+									otherOS.println("SCORED " + GameGlobals.RIGHT);
+								}
+								else{
+									ServerGlobals.hitZone.enemy[GameGlobals.RIGHT] = -1;
+									thisOS.println("LOST " + GameGlobals.RIGHT);
+									otherOS.println("LOST " + GameGlobals.RIGHT);	
+								}
+								break;
 							}
 						}
 					}
