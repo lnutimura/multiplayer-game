@@ -16,14 +16,19 @@ List of tasks and ideas for implementation
 - Best scores in database
 
 **Important Notes**
+
 To compile:
 - Server: Go to `server` directory and execute:
+
 > `javac -cp .;"%cd%"\.. Server.java`
 - Client: Go to `client` directory and execute:
+
 > `javac -cp .;"%cd%"\.. Client.java`
 
 To run:
 - Server: Go to `server` directory and execute:
+
 > `java -cp .;"%cd%"\.. Server`
 - Client: Go to `client` directory and execute:
+
 > `java -cp .;"%cd%"\.. Client`
