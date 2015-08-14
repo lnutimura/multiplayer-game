@@ -7,7 +7,7 @@ List of tasks and ideas for implementation
 - [x] Enemy generation algorithm
 - [x] Score
 - [x] Player 2 mechanic [guitar hero]
-- [ ] Sound Effects: BGM/Score/Miss (need to find better ones)
+- [ ] Sound Effects: Score/Miss (need to find better ones)
 - [ ] Game Over condition
 - [ ] Game Over screen
 
